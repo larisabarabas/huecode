@@ -16,45 +16,41 @@ export default function ExportPanel({ palette }: ExportPanelProps) {
   const code = useMemo(() => active.generate(palette), [active, palette]);
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white">
-      <div className="flex flex-wrap gap-1 border-b border-slate-200 p-2">
+    <div className="flex h-full min-h-0 flex-col gap-2.5 px-4.5 pb-4.5 pt-3.5">
+      <div className="flex flex-wrap gap-1.5">
         {EXPORT_FORMATS.map((format) => (
           <button
             key={format.id}
             type="button"
             onClick={() => setActiveId(format.id)}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-              format.id === activeId
-                ? "bg-slate-900 text-white"
-                : "text-slate-600 hover:bg-slate-100"
+            className={`rounded-lg px-2.5 py-1.5 text-[11.5px] font-semibold transition-colors ${
+              format.id === activeId ? "bg-chip-purple text-shell-bg" : "bg-chrome-2 text-muted"
             }`}
           >
             {format.label}
           </button>
         ))}
-      </div>
-
-      <div className="relative">
-        <pre className="max-h-96 overflow-auto rounded-b-lg bg-slate-950 p-4 text-xs leading-relaxed text-slate-100">
-          <code>{code}</code>
-        </pre>
-        <div className="absolute right-3 top-3 flex gap-2">
+        <div className="ml-auto flex gap-1.5">
           <button
             type="button"
             onClick={() => copy(code, active.id)}
-            className="rounded-md bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-100 hover:bg-slate-700"
+            className="rounded-lg border border-line px-2.5 py-1.5 text-[11.5px] font-semibold text-muted hover:text-ink"
           >
             {copiedKey === active.id ? "Copied!" : "Copy"}
           </button>
           <button
             type="button"
             onClick={() => downloadTextFile(active.filename, code)}
-            className="rounded-md bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-100 hover:bg-slate-700"
+            className="rounded-lg border border-line px-2.5 py-1.5 text-[11.5px] font-semibold text-muted hover:text-ink"
           >
             Download
           </button>
         </div>
       </div>
+
+      <pre className="m-0 min-h-0 flex-1 overflow-auto rounded-[10px] border border-line bg-code-bg p-3.5 font-mono text-[11.5px] leading-relaxed text-[#e7e5f0]">
+        <code>{code}</code>
+      </pre>
     </div>
   );
 }

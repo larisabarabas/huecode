@@ -1,64 +1,64 @@
 import { useState } from "react";
-import ThemeInput from "./components/ThemeInput";
-import PaletteDisplay from "./components/PaletteDisplay";
-import ExportPanel from "./components/ExportPanel";
-import AiProposedSwatches from "./components/AiProposedSwatches";
+import AppHeader from "./components/AppHeader";
+import PreviewPane, { type PreviewTab } from "./components/PreviewPane";
+import GeneratorSheet from "./components/GeneratorSheet";
+import { DEFAULT_THEME, useGeneratorState } from "./hooks/useGeneratorState";
+import { paletteFromThemeText } from "./lib/textToPalette";
+import type { PreviewMode } from "./lib/previewTheme";
 import type { Palette, PaletteSource } from "./lib/types";
 
 export default function App() {
-  const [palette, setPalette] = useState<Palette | null>(null);
-  const [source, setSource] = useState<PaletteSource | null>(null);
+  const [palette, setPalette] = useState<Palette>(() => paletteFromThemeText(DEFAULT_THEME));
+  const [source, setSource] = useState<PaletteSource>({ kind: "text", label: DEFAULT_THEME });
+  const [previewTab, setPreviewTab] = useState<PreviewTab>("app");
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("light");
+  const [sheetOpen, setSheetOpen] = useState(true);
+  const [sheetTab, setSheetTab] = useState<"palette" | "export">("palette");
 
-  function handleGenerate(nextPalette: Palette, nextSource: PaletteSource) {
-    setPalette(nextPalette);
-    setSource(nextSource);
-  }
+  const gen = useGeneratorState({
+    onGenerate: (nextPalette, nextSource) => {
+      setPalette(nextPalette);
+      setSource(nextSource);
+    },
+  });
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-10">
-        <header>
-          <h1 className="text-2xl font-bold text-slate-900">Text or image to TailwindCSS Color Palette</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Turn a written theme or an image into a color palette, ready to drop into Tailwind or React.
-          </p>
-        </header>
+    <div className="flex h-screen flex-col overflow-hidden bg-shell-bg font-sans text-ink antialiased">
+      <AppHeader
+        previewTab={previewTab}
+        onPreviewTab={setPreviewTab}
+        previewMode={previewMode}
+        onPreviewMode={setPreviewMode}
+      />
 
-        <ThemeInput
-          onGenerate={handleGenerate}
-          onClear={() => {
-            setPalette(null);
-            setSource(null);
-          }}
-        />
+      <PreviewPane palette={palette} mode={previewMode} tab={previewTab} />
 
-        {palette && (
-          <>
-            {source?.proposedColors && <AiProposedSwatches colors={source.proposedColors} />}
+      <GeneratorSheet
+        palette={palette}
+        source={source}
+        gen={gen}
+        open={sheetOpen}
+        onToggle={() => setSheetOpen((v) => !v)}
+        tab={sheetTab}
+        onTab={setSheetTab}
+        onExportClick={() => {
+          setSheetOpen(true);
+          setSheetTab("export");
+        }}
+      />
 
-            <div>
-              <div className="mb-2 flex items-baseline justify-between">
-                <h2 className="text-sm font-semibold text-slate-700">Palette</h2>
-                {source && (
-                  <span className="text-xs text-slate-400">
-                    from {source.kind === "text" ? `"${source.label}"` : source.label}
-                  </span>
-                )}
-              </div>
-              {source?.note && (
-                <p className="mb-3 rounded-md bg-indigo-50 px-3 py-2 text-xs text-indigo-700">
-                  {source.note}
-                </p>
-              )}
-              <PaletteDisplay palette={palette} />
-            </div>
-
-            <div>
-              <h2 className="mb-2 text-sm font-semibold text-slate-700">Export</h2>
-              <ExportPanel palette={palette} />
-            </div>
-          </>
-        )}
+      <div className="flex flex-none items-center gap-2.5 px-1 py-2.5 text-[11.5px] font-medium text-muted">
+        <span>Exports</span>
+        <div className="flex items-center gap-2 font-mono text-[11px] text-muted-2">
+          <span>Tailwind v4</span>
+          <span className="text-line">/</span>
+          <span>Tailwind v3</span>
+          <span className="text-line">/</span>
+          <span>CSS variables</span>
+          <span className="text-line">/</span>
+          <span>TS tokens</span>
+        </div>
+        <span className="ml-auto">Built by Stefania-Larisa Barabas</span>
       </div>
     </div>
   );

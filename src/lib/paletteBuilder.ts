@@ -19,9 +19,28 @@ export const SEMANTIC_ANCHORS: Record<"success" | "warning" | "error" | "info", 
   info: { h: 217, s: 80, l: 52 },
 };
 
+/**
+ * Unlike the other roles, "neutral" is conventionally used as text *on top of its own tints*
+ * (e.g. neutral-500 body text on a neutral-50 background) rather than as a fill color with a
+ * separately-chosen foreground. generateShadeScale anchors shade 500 exactly on the requested
+ * lightness with no cushion, so a proposal near either extreme (a very light or very dark
+ * neutral) collapses 500 into the same band as its own 50 or 950 neighbor, making it unreadable.
+ * Clamping keeps 500 legibly separated from both ends regardless of what was proposed, while
+ * leaving hue/saturation — which is what actually gives a theme's neutral its character — free.
+ */
+const NEUTRAL_LIGHTNESS_RANGE = { min: 38, max: 46 };
+
 /** Turns eight already-chosen base HSL colors (one per role) into a full shade-ramped palette. */
 export function assemblePalette(roles: Record<ColorRole, HSL>): Palette {
-  return Object.fromEntries(COLOR_ROLES.map((role) => [role, generateShadeScale(roles[role])])) as Palette;
+  return Object.fromEntries(
+    COLOR_ROLES.map((role) => {
+      const base =
+        role === "neutral"
+          ? { ...roles[role], l: clamp(roles[role].l, NEUTRAL_LIGHTNESS_RANGE.min, NEUTRAL_LIGHTNESS_RANGE.max) }
+          : roles[role];
+      return [role, generateShadeScale(base)];
+    }),
+  ) as Palette;
 }
 
 export interface PaletteRoles {
