@@ -10,13 +10,13 @@ interface ExportPanelProps {
 
 export default function ExportPanel({ palette }: ExportPanelProps) {
   const [activeId, setActiveId] = useState<ExportFormatId>("tailwind-v4");
-  const { copiedKey, copy } = useCopyToClipboard();
+  const { copiedKey, failedKey, copy } = useCopyToClipboard();
 
   const active = EXPORT_FORMATS.find((f) => f.id === activeId)!;
   const code = useMemo(() => active.generate(palette), [active, palette]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-2.5 px-4.5 pb-4.5 pt-3.5">
+    <div className="flex min-w-0 flex-col gap-2.5 px-4.5 pb-4.5 pt-3.5 lg:h-full lg:min-h-0">
       <div className="flex flex-wrap gap-1.5">
         {EXPORT_FORMATS.map((format) => (
           <button
@@ -30,13 +30,16 @@ export default function ExportPanel({ palette }: ExportPanelProps) {
             {format.label}
           </button>
         ))}
-        <div className="ml-auto flex gap-1.5">
+        <div className="ml-auto flex basis-full gap-1.5 lg:basis-auto">
           <button
             type="button"
             onClick={() => copy(code, active.id)}
-            className="rounded-lg border border-line px-2.5 py-1.5 text-[11.5px] font-semibold text-muted hover:text-ink"
+            aria-live="polite"
+            className={`rounded-lg border px-2.5 py-1.5 text-[11.5px] font-semibold hover:text-ink ${
+              failedKey === active.id ? "border-red-500 text-red-600" : "border-line text-muted"
+            }`}
           >
-            {copiedKey === active.id ? "Copied!" : "Copy"}
+            {copiedKey === active.id ? "Copied!" : failedKey === active.id ? "Copy failed" : "Copy"}
           </button>
           <button
             type="button"
@@ -48,7 +51,7 @@ export default function ExportPanel({ palette }: ExportPanelProps) {
         </div>
       </div>
 
-      <pre className="m-0 min-h-0 flex-1 overflow-auto rounded-[10px] border border-line bg-code-bg p-3.5 font-mono text-[11.5px] leading-relaxed text-[#e7e5f0]">
+      <pre className="m-0 min-w-0 overflow-x-auto whitespace-pre-wrap break-words rounded-[10px] border border-line bg-code-bg p-3.5 font-mono text-[11px] leading-relaxed text-[#e7e5f0] lg:min-h-0 lg:flex-1 lg:overflow-auto lg:whitespace-pre lg:break-normal lg:text-[11.5px]">
         <code>{code}</code>
       </pre>
     </div>

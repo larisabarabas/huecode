@@ -30,7 +30,7 @@ export default function GeneratorSheet({
 
   return (
     <div className="flex-none border-t border-line bg-shell-bg">
-      <div className="flex items-center gap-3.5 px-4.5 py-2.5">
+      <div className="flex flex-wrap items-center gap-3.5 px-2.5 py-2.5 lg:px-4.5">
         <button
           type="button"
           onClick={onToggle}
@@ -58,12 +58,12 @@ export default function GeneratorSheet({
       </div>
 
       {open && (
-        <div className="flex h-94 max-h-[60vh] flex-col overflow-hidden border-t border-line lg:h-94 lg:max-h-none lg:flex-row">
-          <div className="min-h-0 w-full flex-none border-b border-line lg:h-full lg:w-85 lg:border-b-0 lg:border-r">
+        <div className="flex max-h-[45dvh] flex-col overflow-y-auto border-t border-line lg:h-94 lg:max-h-none lg:flex-row lg:overflow-hidden">
+          <div className="box-border min-h-0 w-full flex-none border-b border-line lg:h-full lg:w-85 lg:border-b-0 lg:border-r">
             <GeneratorPanel gen={gen} source={source} />
           </div>
 
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <div className="flex min-w-0 flex-none flex-col lg:min-h-0 lg:flex-1">
             <div className="flex gap-0.5 px-4.5 pt-3">
               <button
                 type="button"

@@ -9,7 +9,7 @@ interface SwatchStripProps {
 
 export default function SwatchStrip({ palette }: SwatchStripProps) {
   return (
-    <div className="flex min-w-0 flex-1 gap-0.5">
+    <div className="order-2 flex min-w-0 flex-1 basis-full gap-0.5 lg:order-none lg:basis-auto">
       {STRIP_ROLES.flatMap((role) =>
         STRIP_STEPS.map((step) => {
           const hex = palette[role][step];

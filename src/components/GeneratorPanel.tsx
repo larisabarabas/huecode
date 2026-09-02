@@ -1,6 +1,7 @@
 import { useRef, useState, type DragEvent } from "react";
 import type { useGeneratorState } from "../hooks/useGeneratorState";
 import type { PaletteSource } from "../lib/types";
+import AiToggle from "./AiToggle";
 
 const EXAMPLE_THEMES = ["sunset desert", "corporate fintech trustworthy", "cyberpunk neon", "midnight jazz mysterious"];
 
@@ -23,7 +24,7 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
   const canGenerate = gen.inputMode === "text" ? gen.text.trim().length > 0 : Boolean(gen.imagePreview);
 
   return (
-    <div className="flex h-full w-full flex-col gap-3.5 overflow-y-auto p-4.5">
+    <div className="flex w-full flex-col gap-3.5 p-3.5 lg:h-full lg:overflow-y-auto lg:p-4.5">
       <div className="flex w-fit gap-0.5 rounded-[9px] bg-chrome-2 p-0.5">
         <button
           type="button"
@@ -52,7 +53,7 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
             value={gen.text}
             onChange={(e) => gen.setText(e.target.value)}
             placeholder="e.g. sunset over the desert, or corporate fintech, trustworthy"
-            className="w-full resize-none rounded-[10px] border border-line bg-white p-2.5 font-sans text-[13px] leading-snug text-ink outline-none"
+            className="box-border w-full resize-none rounded-[10px] border border-line bg-white p-2.5 font-sans text-[13px] leading-snug text-ink outline-none"
           />
           <div className="flex flex-wrap gap-1.5">
             {EXAMPLE_THEMES.map((example) => (
@@ -66,21 +67,7 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
               </button>
             ))}
           </div>
-          {gen.aiAvailable && (
-            <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-2">
-              <span
-                onClick={() => gen.setUseAi(!gen.useAi)}
-                className="relative inline-block h-4.5 w-8 rounded-full transition-colors"
-                style={{ backgroundColor: gen.useAi ? "var(--color-coral)" : "#dad6e6" }}
-              >
-                <span
-                  className="absolute top-0.5 h-3 w-3 rounded-full bg-white transition-[left]"
-                  style={{ left: gen.useAi ? "16px" : "3px" }}
-                />
-              </span>
-              Enhance with AI
-            </label>
-          )}
+          {gen.aiAvailable && <AiToggle checked={gen.useAi} onChange={gen.setUseAi} />}
         </div>
       ) : (
         <div
@@ -106,11 +93,24 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
             }}
           />
           {gen.imagePreview ? (
-            <img
-              src={gen.imagePreview}
-              alt="Preview"
-              className="max-h-40 w-full max-w-55 rounded-md object-contain"
-            />
+            <div className="relative w-full max-w-55">
+              <img
+                src={gen.imagePreview}
+                alt="Preview"
+                className="max-h-40 w-full rounded-md object-contain"
+              />
+              <button
+                type="button"
+                aria-label="Remove image"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  gen.clearImage();
+                }}
+                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-line bg-shell-bg text-[11px] font-bold text-muted shadow-sm hover:text-ink"
+              >
+                ✕
+              </button>
+            </div>
           ) : (
             <p className="text-[12.5px] leading-relaxed text-muted-2">
               Drag &amp; drop an image
@@ -127,21 +127,21 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
       )}
       {gen.error && <p className="text-xs text-red-600">{gen.error}</p>}
 
-      <div className="mt-auto flex gap-2 pt-1">
+      <div className="mt-auto flex flex-wrap gap-2 pt-1">
         <button
           type="button"
           onClick={() => void gen.generate()}
           disabled={!canGenerate || gen.isProcessing}
-          className="flex-1 rounded-[9px] bg-coral px-2.5 py-2.5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
+          className="min-h-[44px] flex-1 rounded-[9px] bg-coral px-2.5 py-2.5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-40 lg:min-h-0"
         >
           {gen.isProcessing ? "Generating…" : "Generate palette"}
         </button>
         <button
           type="button"
-          onClick={gen.clear}
-          className="rounded-[9px] border border-line px-3.5 py-2.5 text-[13px] font-semibold text-muted hover:text-ink"
+          onClick={gen.reset}
+          className="min-h-[44px] rounded-[9px] border border-line px-3.5 py-2.5 text-[13px] font-semibold text-muted hover:text-ink lg:min-h-0"
         >
-          Clear
+          Reset
         </button>
       </div>
     </div>

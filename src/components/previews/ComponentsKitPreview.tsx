@@ -13,8 +13,8 @@ const AVATARS = [
 
 export default function ComponentsKitPreview() {
   return (
-    <div className="mx-auto flex min-w-220 max-w-275 flex-col gap-3.5 p-6">
-      <div className="grid grid-cols-2 gap-3.5">
+    <div className="mx-auto flex max-w-275 flex-col gap-3.5 p-4 lg:min-w-220 lg:p-6">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
         <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4.5">
           <div className="text-[11px] font-semibold uppercase tracking-[.06em] text-[var(--text-muted)]">
             Buttons
@@ -101,7 +101,7 @@ export default function ComponentsKitPreview() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3.5">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
         <div className="flex flex-col gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4.5">
           <div className="text-[11px] font-semibold uppercase tracking-[.06em] text-[var(--text-muted)]">
             Feedback
