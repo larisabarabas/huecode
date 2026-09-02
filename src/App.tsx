@@ -3,7 +3,8 @@ import AppHeader from "./components/AppHeader";
 import PreviewPane, { type PreviewTab } from "./components/PreviewPane";
 import GeneratorSheet from "./components/GeneratorSheet";
 import ResetConfirmModal from "./components/ResetConfirmModal";
-import { DEFAULT_THEME, UNDO_SHORTCUT_LABEL, useGeneratorState } from "./hooks/useGeneratorState";
+import UndoToast from "./components/UndoToast";
+import { DEFAULT_THEME, useGeneratorState } from "./hooks/useGeneratorState";
 import { paletteFromThemeText } from "./lib/textToPalette";
 import { loadStoredPalette, saveStoredPalette } from "./lib/paletteStorage";
 import type { PreviewMode } from "./lib/previewTheme";
@@ -78,31 +79,12 @@ export default function App() {
         onCancel={gen.cancelReset}
       />
 
-      {gen.canUndo && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
-          <div className="pointer-events-auto flex items-center gap-3 rounded-xl border border-line bg-ink px-4 py-2.5 text-[12.5px] font-medium text-shell-bg shadow-lg">
-            <span>
-              Palette reset to <span className="font-semibold">{DEFAULT_THEME}</span>
-            </span>
-            <button
-              type="button"
-              onClick={gen.undoReset}
-              className="rounded-md bg-white/15 px-2.5 py-1 font-semibold hover:bg-white/25"
-            >
-              Undo
-            </button>
-            <span className="text-white/45">{UNDO_SHORTCUT_LABEL}</span>
-            <button
-              type="button"
-              onClick={gen.dismissUndo}
-              aria-label="Dismiss"
-              className="text-white/45 hover:text-shell-bg"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
+      <UndoToast
+        open={gen.canUndo}
+        themeLabel={DEFAULT_THEME}
+        onUndo={gen.undoReset}
+        onDismiss={gen.dismissUndo}
+      />
     </div>
   );
 }

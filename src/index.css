@@ -15,6 +15,38 @@
   --color-tab-blue: #235789;
   --color-chip-purple: #9b5094;
   --color-code-bg: #12121a;
+  --color-danger: #c62828;
+  --color-danger-fg: #ffffff;
+}
+
+/* One focus-visible treatment for every control. tab-blue clears 3:1 on the
+   light chrome, and outline-offset keeps the ring on a light surface even when
+   the control itself has a coral / blue / purple / ink fill. Components that
+   manage their own ring (swatches) opt out with `focus:outline-none`. */
+:where(button, a[href], input, textarea, select, summary, [role="switch"], [role="tab"], [tabindex="0"]):focus-visible {
+  outline: 2px solid var(--color-tab-blue);
+  outline-offset: 2px;
+}
+
+@keyframes undo-countdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.undo-countdown {
+  transform-origin: left;
+  animation: undo-countdown linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .undo-countdown {
+    animation: none;
+    display: none;
+  }
 }
 
 html,

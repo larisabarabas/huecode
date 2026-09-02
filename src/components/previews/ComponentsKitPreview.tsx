@@ -62,7 +62,7 @@ export default function ComponentsKitPreview() {
               <span className="text-xs font-semibold text-[var(--text)]">Workspace name</span>
               <input
                 readOnly
-                value="Northwind"
+                value="Demo App"
                 className="rounded-[9px] border border-[var(--border)] bg-[var(--bg)] px-2.5 py-2.5 text-[13px] text-[var(--text)] outline-none"
               />
             </label>
@@ -70,7 +70,7 @@ export default function ComponentsKitPreview() {
               <span className="text-xs font-semibold text-[var(--text)]">Billing email</span>
               <input
                 readOnly
-                value="billing@northwind.co"
+                value="billing@demoapp.co"
                 className="rounded-[9px] border border-[var(--p-500)] bg-[var(--bg)] px-2.5 py-2.5 text-[13px] text-[var(--text)] outline-none"
                 style={{ boxShadow: "0 0 0 3px var(--p-100)" }}
               />

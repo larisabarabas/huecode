@@ -31,7 +31,7 @@ export default function AppPreview() {
       <div className="flex flex-col gap-2.5 border-b border-[var(--border)] bg-[var(--surface)] p-3.5 lg:hidden">
         <div className="flex items-center gap-2">
           <div className="h-6.5 w-6.5 rounded-lg bg-[var(--p-600)]" />
-          <span className="text-sm font-semibold text-[var(--text)]">Northwind</span>
+          <span className="text-sm font-semibold text-[var(--text)]">Demo App</span>
           <span className="ml-auto flex flex-col gap-[3px]">
             <span className="h-0.5 w-4 rounded bg-[var(--text-muted)]" />
             <span className="h-0.5 w-4 rounded bg-[var(--text-muted)]" />
@@ -57,7 +57,7 @@ export default function AppPreview() {
       <aside className="hidden w-52.5 flex-none flex-col gap-4.5 border-r border-[var(--border)] bg-[var(--surface)] p-3 lg:flex">
         <div className="flex items-center gap-2 px-2">
           <div className="h-6.5 w-6.5 rounded-lg bg-[var(--p-600)]" />
-          <span className="text-sm font-semibold text-[var(--text)]">Northwind</span>
+          <span className="text-sm font-semibold text-[var(--text)]">Demo App</span>
         </div>
         <nav className="flex flex-col gap-0.5">
           {NAV_ITEMS.map((item, i) => (

@@ -24,7 +24,7 @@ export default function AiToggle({ checked, onChange }: AiToggleProps) {
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className="group flex items-center gap-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/60"
+        className="group flex items-center gap-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-tab-blue"
       >
         <span
           className="relative inline-block h-4.5 w-8 flex-none rounded-full transition-colors"
@@ -49,7 +49,7 @@ export default function AiToggle({ checked, onChange }: AiToggleProps) {
           if (e.key === "Escape") setTipOpen(false);
         }}
         onBlur={() => setTipOpen(false)}
-        className="flex h-4 w-4 items-center justify-center rounded-full border border-line text-[10px] font-bold leading-none text-muted-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/60"
+        className="flex h-4 w-4 items-center justify-center rounded-full border border-line text-[10px] font-bold leading-none text-muted-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-tab-blue"
       >
         ?
       </button>

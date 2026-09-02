@@ -29,7 +29,7 @@ export default function MarketingPreview() {
   return (
     <div className="lg:min-w-220">
       <div className="flex items-center gap-6.5 bg-[var(--brand-deep)] px-4 py-3 lg:px-10 lg:py-4">
-        <span className="text-sm font-bold text-[var(--brand-fg)]">Northwind</span>
+        <span className="text-sm font-bold text-[var(--brand-fg)]">Demo App</span>
         <span className="hidden text-[12.5px] text-[var(--brand-fg-2)] lg:inline">Product</span>
         <span className="hidden text-[12.5px] text-[var(--brand-fg-2)] lg:inline">Pricing</span>
         <span className="hidden text-[12.5px] text-[var(--brand-fg-2)] lg:inline">Docs</span>

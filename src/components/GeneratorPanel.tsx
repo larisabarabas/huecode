@@ -13,6 +13,7 @@ interface GeneratorPanelProps {
 export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   function handleDrop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
@@ -49,24 +50,38 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
       {gen.inputMode === "text" ? (
         <div className="flex flex-col gap-3">
           <textarea
+            ref={textareaRef}
             rows={3}
             value={gen.text}
             onChange={(e) => gen.setText(e.target.value)}
             placeholder="e.g. sunset over the desert, or corporate fintech, trustworthy"
-            className="box-border w-full resize-none rounded-[10px] border border-line bg-white p-2.5 font-sans text-[13px] leading-snug text-ink outline-none"
+            className="box-border w-full resize-none rounded-[10px] border border-line bg-white p-2.5 font-sans text-[13px] leading-snug text-ink"
           />
-          <div className="flex flex-wrap gap-1.5">
-            {EXAMPLE_THEMES.map((example) => (
-              <button
-                key={example}
-                type="button"
-                onClick={() => gen.setText(example)}
-                className="rounded-full border border-line px-2.5 py-1 text-[11.5px] text-muted hover:text-ink"
-              >
-                {example}
-              </button>
-            ))}
-          </div>
+          {gen.text.trim().length > 0 ? (
+            <button
+              type="button"
+              onClick={() => {
+                gen.setText("");
+                textareaRef.current?.focus();
+              }}
+              className="self-start rounded-full border border-line px-2.5 py-1 text-[11.5px] text-muted hover:text-ink"
+            >
+              Clear text
+            </button>
+          ) : (
+            <div className="flex flex-wrap gap-1.5">
+              {EXAMPLE_THEMES.map((example) => (
+                <button
+                  key={example}
+                  type="button"
+                  onClick={() => gen.setText(example)}
+                  className="rounded-full border border-line px-2.5 py-1 text-[11.5px] text-muted hover:text-ink"
+                >
+                  {example}
+                </button>
+              ))}
+            </div>
+          )}
           {gen.aiAvailable && <AiToggle checked={gen.useAi} onChange={gen.setUseAi} />}
         </div>
       ) : (
