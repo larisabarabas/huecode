@@ -3,10 +3,14 @@ import { EXPORT_FORMATS, type ExportFormatId } from "../lib/exportFormats";
 import { downloadTextFile } from "../lib/download";
 import { useCopyToClipboard } from "../hooks/useCopyToClipboard";
 import type { Palette } from "../lib/types";
+import Button from "./ui/Button";
+import SegmentedControl from "./ui/SegmentedControl";
 
 interface ExportPanelProps {
   palette: Palette;
 }
+
+const FORMAT_OPTIONS = EXPORT_FORMATS.map((f) => ({ value: f.id, label: f.label }));
 
 export default function ExportPanel({ palette }: ExportPanelProps) {
   const [activeId, setActiveId] = useState<ExportFormatId>("tailwind-v4");
@@ -15,39 +19,32 @@ export default function ExportPanel({ palette }: ExportPanelProps) {
   const active = EXPORT_FORMATS.find((f) => f.id === activeId)!;
   const code = useMemo(() => active.generate(palette), [active, palette]);
 
+  const copyFailed = failedKey === active.id;
+
   return (
     <div className="flex min-w-0 flex-col gap-2.5 px-4.5 pb-4.5 pt-3.5 lg:h-full lg:min-h-0">
-      <div className="flex flex-wrap gap-1.5">
-        {EXPORT_FORMATS.map((format) => (
-          <button
-            key={format.id}
-            type="button"
-            onClick={() => setActiveId(format.id)}
-            className={`rounded-lg px-2.5 py-1.5 text-[11.5px] font-semibold transition-colors ${
-              format.id === activeId ? "bg-chip-purple text-shell-bg" : "bg-chrome-2 text-muted"
-            }`}
-          >
-            {format.label}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-start gap-1.5">
+        <SegmentedControl
+          label="Export format"
+          options={FORMAT_OPTIONS}
+          value={activeId}
+          onChange={setActiveId}
+          size="sm"
+          wrap
+        />
         <div className="ml-auto flex basis-full gap-1.5 lg:basis-auto">
-          <button
-            type="button"
-            onClick={() => copy(code, active.id)}
+          <Button
+            variant="secondary"
+            size="sm"
             aria-live="polite"
-            className={`rounded-lg border px-2.5 py-1.5 text-[11.5px] font-semibold hover:text-ink ${
-              failedKey === active.id ? "border-red-500 text-red-600" : "border-line text-muted"
-            }`}
+            className={copyFailed ? "text-danger! border-danger!" : ""}
+            onClick={() => copy(code, active.id)}
           >
-            {copiedKey === active.id ? "Copied!" : failedKey === active.id ? "Copy failed" : "Copy"}
-          </button>
-          <button
-            type="button"
-            onClick={() => downloadTextFile(active.filename, code)}
-            className="rounded-lg border border-line px-2.5 py-1.5 text-[11.5px] font-semibold text-muted hover:text-ink"
-          >
+            {copiedKey === active.id ? "Copied!" : copyFailed ? "Copy failed" : "Copy"}
+          </Button>
+          <Button variant="secondary" size="sm" onClick={() => downloadTextFile(active.filename, code)}>
             Download
-          </button>
+          </Button>
         </div>
       </div>
 

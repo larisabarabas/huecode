@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
+import { X } from "lucide-react";
 import { UNDO_SHORTCUT_LABEL, UNDO_WINDOW_MS } from "../hooks/useGeneratorState";
+import IconButton from "./ui/IconButton";
 
 interface UndoToastProps {
   open: boolean;
@@ -39,14 +41,14 @@ export default function UndoToast({ open, themeLabel, onUndo, onDismiss }: UndoT
           Undo
         </button>
         <span className="text-white/45">{UNDO_SHORTCUT_LABEL}</span>
-        <button
-          type="button"
+        <IconButton
+          label="Dismiss"
+          variant="bare"
           onClick={onDismiss}
-          aria-label="Dismiss"
           className="ml-auto text-white/45 hover:text-shell-bg"
         >
-          ✕
-        </button>
+          <X size={14} aria-hidden="true" />
+        </IconButton>
         <span
           aria-hidden="true"
           className="undo-countdown absolute inset-x-0 bottom-0 h-0.5 bg-white/35"

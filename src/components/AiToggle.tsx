@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { CircleHelp } from "lucide-react";
+import IconButton from "./ui/IconButton";
+import Switch from "./ui/Switch";
 
 interface AiToggleProps {
   checked: boolean;
@@ -19,28 +22,11 @@ export default function AiToggle({ checked, onChange }: AiToggleProps) {
       className="relative flex items-center gap-2 text-xs text-muted-2"
       onMouseLeave={() => setTipOpen(false)}
     >
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className="group flex items-center gap-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-tab-blue"
-      >
-        <span
-          className="relative inline-block h-4.5 w-8 flex-none rounded-full transition-colors"
-          style={{ backgroundColor: checked ? "var(--color-coral)" : "#dad6e6" }}
-        >
-          <span
-            className="absolute top-0.5 h-3 w-3 rounded-full bg-white transition-[left]"
-            style={{ left: checked ? "16px" : "3px" }}
-          />
-        </span>
-        <span className="font-medium">Enhance with AI</span>
-      </button>
+      <Switch label="Enhance with AI" showLabel checked={checked} onChange={onChange} />
 
-      <button
-        type="button"
-        aria-label="What does Enhance with AI do?"
+
+      <IconButton
+        label="What does Enhance with AI do?"
         aria-expanded={tipOpen}
         aria-describedby={tipOpen ? TOOLTIP_ID : undefined}
         onClick={() => setTipOpen((v) => !v)}
@@ -49,10 +35,9 @@ export default function AiToggle({ checked, onChange }: AiToggleProps) {
           if (e.key === "Escape") setTipOpen(false);
         }}
         onBlur={() => setTipOpen(false)}
-        className="flex h-4 w-4 items-center justify-center rounded-full border border-line text-[10px] font-bold leading-none text-muted-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-tab-blue"
       >
-        ?
-      </button>
+        <CircleHelp size={14} aria-hidden="true" />
+      </IconButton>
 
       {tipOpen && (
         <span

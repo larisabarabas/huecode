@@ -1,3 +1,4 @@
+import { Check, X } from "lucide-react";
 import { readableTextColor } from "../lib/color";
 
 interface ColorSwatchProps {
@@ -52,10 +53,10 @@ export default function ColorSwatch({
       {(copied || failed) && (
         <span
           aria-hidden="true"
-          className="absolute inset-0 flex items-center justify-center text-[13px] font-bold"
+          className="absolute inset-0 flex items-center justify-center"
           style={{ backgroundColor: hex, color: textColor }}
         >
-          {copied ? "✓" : "✕"}
+          {copied ? <Check size={14} strokeWidth={3} /> : <X size={14} strokeWidth={3} />}
         </span>
       )}
     </button>

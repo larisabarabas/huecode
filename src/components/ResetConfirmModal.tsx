@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { DEFAULT_THEME, UNDO_WINDOW_MS } from "../hooks/useGeneratorState";
+import Button from "./ui/Button";
 
 interface ResetConfirmModalProps {
   open: boolean;
@@ -78,21 +79,12 @@ export default function ResetConfirmModal({ open, themeLabel, onConfirm, onCance
           seconds to undo.
         </p>
         <div className="mt-4 flex justify-end gap-2">
-          <button
-            ref={cancelRef}
-            type="button"
-            onClick={onCancel}
-            className="rounded-[9px] border border-line px-3.5 py-2 text-[13px] font-semibold text-muted hover:text-ink"
-          >
+          <Button ref={cancelRef} variant="secondary" onClick={onCancel}>
             Cancel
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className="rounded-[9px] bg-danger px-3.5 py-2 text-[13px] font-semibold text-danger-fg hover:brightness-95"
-          >
+          </Button>
+          <Button variant="danger" onClick={onConfirm}>
             Reset palette
-          </button>
+          </Button>
         </div>
       </div>
     </div>,

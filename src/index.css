@@ -17,6 +17,20 @@
   --color-code-bg: #12121a;
   --color-danger: #c62828;
   --color-danger-fg: #ffffff;
+
+  /* Control system — one geometry + one "selected" treatment for every button,
+     segment and chip. The selected fill lives here so it's a one-line change. */
+  --color-track: #e9e6f1;
+  --color-selected: #9b5094;
+  --color-selected-fg: #fdfffc;
+
+  --radius-control: 9px;
+  --radius-control-sm: 6px;
+
+  --text-control-lg: 13px;
+  --text-control: 12.5px;
+  --text-control-sm: 11.5px;
+  --text-control-xs: 11px;
 }
 
 /* One focus-visible treatment for every control. tab-blue clears 3:1 on the

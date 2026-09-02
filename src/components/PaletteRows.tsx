@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SHADE_STEPS, type ColorRole, type Palette } from "../lib/types";
 import { useCopyToClipboard } from "../hooks/useCopyToClipboard";
 import ColorSwatch from "./ColorSwatch";
+import Button from "./ui/Button";
 
 const CORE_ROLES: ColorRole[] = ["primary", "secondary", "accent", "neutral"];
 const SEMANTIC_ROLES: ColorRole[] = ["success", "warning", "error", "info"];
@@ -29,7 +30,7 @@ function RoleRow({
     <div>
       <div className="mb-1.5 flex items-baseline gap-2">
         <span className="text-xs font-semibold capitalize text-ink">{role}</span>
-        <span className="font-mono text-[11px] text-muted">{palette[role][500]}</span>
+        <span className="font-mono text-xs text-muted">{palette[role][500]}</span>
       </div>
       <div role="group" aria-label={`${role} shade scale`} className="flex gap-0.5">
         {SHADE_STEPS.map((step) => {
@@ -78,13 +79,15 @@ export default function PaletteRows({ palette }: PaletteRowsProps) {
         />
       ))}
 
-      <button
-        type="button"
+      <Button
+        variant="secondary"
+        size="sm"
+        className="self-start"
+        aria-expanded={semanticsOpen}
         onClick={() => setSemanticsOpen((v) => !v)}
-        className="self-start rounded-lg border border-line px-2.5 py-1.5 text-[11.5px] font-semibold text-muted hover:text-ink"
       >
         {semanticsOpen ? "Hide semantic colors" : "Show semantic colors (success, warning, error, info)"}
-      </button>
+      </Button>
 
       {semanticsOpen && (
         <div className="flex flex-col gap-3">

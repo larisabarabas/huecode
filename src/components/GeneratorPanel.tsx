@@ -1,9 +1,18 @@
 import { useRef, useState, type DragEvent } from "react";
+import { X } from "lucide-react";
 import type { useGeneratorState } from "../hooks/useGeneratorState";
 import type { PaletteSource } from "../lib/types";
 import AiToggle from "./AiToggle";
+import Button from "./ui/Button";
+import IconButton from "./ui/IconButton";
+import SegmentedControl from "./ui/SegmentedControl";
 
 const EXAMPLE_THEMES = ["sunset desert", "corporate fintech trustworthy", "cyberpunk neon", "midnight jazz mysterious"];
+
+const INPUT_MODES: { value: "text" | "image"; label: string }[] = [
+  { value: "text", label: "Written theme" },
+  { value: "image", label: "Image" },
+];
 
 interface GeneratorPanelProps {
   gen: ReturnType<typeof useGeneratorState>;
@@ -26,26 +35,13 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
 
   return (
     <div className="flex w-full flex-col gap-3.5 p-3.5 lg:h-full lg:overflow-y-auto lg:p-4.5">
-      <div className="flex w-fit gap-0.5 rounded-[9px] bg-chrome-2 p-0.5">
-        <button
-          type="button"
-          onClick={() => gen.setInputMode("text")}
-          className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
-            gen.inputMode === "text" ? "bg-chip-purple text-shell-bg" : "text-muted-2"
-          }`}
-        >
-          Written theme
-        </button>
-        <button
-          type="button"
-          onClick={() => gen.setInputMode("image")}
-          className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
-            gen.inputMode === "image" ? "bg-chip-purple text-shell-bg" : "text-muted-2"
-          }`}
-        >
-          Image
-        </button>
-      </div>
+      <SegmentedControl
+        label="Input mode"
+        options={INPUT_MODES}
+        value={gen.inputMode}
+        onChange={gen.setInputMode}
+        className="self-start"
+      />
 
       {gen.inputMode === "text" ? (
         <div className="flex flex-col gap-3">
@@ -58,27 +54,23 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
             className="box-border w-full resize-none rounded-[10px] border border-line bg-white p-2.5 font-sans text-[13px] leading-snug text-ink"
           />
           {gen.text.trim().length > 0 ? (
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
+              className="self-start"
               onClick={() => {
                 gen.setText("");
                 textareaRef.current?.focus();
               }}
-              className="self-start rounded-full border border-line px-2.5 py-1 text-[11.5px] text-muted hover:text-ink"
             >
               Clear text
-            </button>
+            </Button>
           ) : (
             <div className="flex flex-wrap gap-1.5">
               {EXAMPLE_THEMES.map((example) => (
-                <button
-                  key={example}
-                  type="button"
-                  onClick={() => gen.setText(example)}
-                  className="rounded-full border border-line px-2.5 py-1 text-[11.5px] text-muted hover:text-ink"
-                >
+                <Button key={example} variant="secondary" size="sm" onClick={() => gen.setText(example)}>
                   {example}
-                </button>
+                </Button>
               ))}
             </div>
           )}
@@ -109,22 +101,17 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
           />
           {gen.imagePreview ? (
             <div className="relative w-full max-w-55">
-              <img
-                src={gen.imagePreview}
-                alt="Preview"
-                className="max-h-40 w-full rounded-md object-contain"
-              />
-              <button
-                type="button"
-                aria-label="Remove image"
+              <img src={gen.imagePreview} alt="Preview" className="max-h-40 w-full rounded-md object-contain" />
+              <IconButton
+                label="Remove image"
+                className="absolute -right-2 -top-2 shadow-sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   gen.clearImage();
                 }}
-                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-line bg-shell-bg text-[11px] font-bold text-muted shadow-sm hover:text-ink"
               >
-                ✕
-              </button>
+                <X size={13} aria-hidden="true" />
+              </IconButton>
             </div>
           ) : (
             <p className="text-[12.5px] leading-relaxed text-muted-2">
@@ -143,21 +130,17 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
       {gen.error && <p className="text-xs text-red-600">{gen.error}</p>}
 
       <div className="mt-auto flex flex-wrap gap-2 pt-1">
-        <button
-          type="button"
+        <Button
+          variant="primary"
           onClick={() => void gen.generate()}
           disabled={!canGenerate || gen.isProcessing}
-          className="min-h-[44px] flex-1 rounded-[9px] bg-coral px-2.5 py-2.5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-40 lg:min-h-0"
+          className="min-h-[44px] flex-1 lg:min-h-0"
         >
           {gen.isProcessing ? "Generating…" : "Generate palette"}
-        </button>
-        <button
-          type="button"
-          onClick={gen.reset}
-          className="min-h-[44px] rounded-[9px] border border-line px-3.5 py-2.5 text-[13px] font-semibold text-muted hover:text-ink lg:min-h-0"
-        >
+        </Button>
+        <Button variant="secondary" onClick={gen.reset} className="min-h-[44px] lg:min-h-0">
           Reset
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -52,24 +52,19 @@ export default function App() {
         onToggle={() => setSheetOpen((v) => !v)}
         tab={sheetTab}
         onTab={setSheetTab}
-        onExportClick={() => {
-          setSheetOpen(true);
-          setSheetTab("export");
-        }}
       />
 
-      <div className="flex flex-none flex-wrap items-center gap-2.5 px-2.5 py-2.5 text-[11.5px] font-medium text-muted lg:px-1">
-        <span className="hidden lg:flex">Exports</span>
-        <div className="hidden items-center gap-2 font-mono text-[11px] text-muted-2 lg:flex">
-          <span>Tailwind v4</span>
-          <span className="text-line">/</span>
-          <span>Tailwind v3</span>
-          <span className="text-line">/</span>
-          <span>CSS variables</span>
-          <span className="text-line">/</span>
-          <span>TS tokens</span>
-        </div>
-        <p className="ml-auto">Built by <a href="https://www.stefaniabarabas.com/" target="_blank" className="hover:text-ink hover:underline">Stefania Barabas</a></p>
+      <div className="flex flex-none items-center px-2.5 py-2.5 text-[11.5px] font-medium text-muted lg:px-1">
+        <p className="ml-auto">
+          Built by{" "}
+          <a
+            href="https://www.stefaniabarabas.com/"
+            target="_blank"
+            className="hover:text-ink hover:underline"
+          >
+            Stefania Barabas
+          </a>
+        </p>
       </div>
 
       <ResetConfirmModal
