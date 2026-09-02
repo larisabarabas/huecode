@@ -26,7 +26,7 @@ export default function AppHeader({ previewTab, onPreviewTab, previewMode, onPre
           <span className="text-[26px] font-semibold tracking-tight text-ink">Huecode</span>
         </div>
         <span className="ml-1 h-5 w-px bg-line" />
-        <span className="text-xs font-medium text-muted">Text or an image to a full Tailwind palette with live preview</span>
+        <span className="text-xs font-medium text-muted">Text or an image to a full TailwindCSS palette with live preview</span>
       </div>
 
       <div className="flex items-center gap-2">

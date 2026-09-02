@@ -58,7 +58,7 @@ export default function App() {
           <span className="text-line">/</span>
           <span>TS tokens</span>
         </div>
-        <span className="ml-auto">Built by Stefania-Larisa Barabas</span>
+        <p className="ml-auto hover:text-ink hover:underline">Built by <a href="https://www.stefaniabarabas.com/" target="_blank">Stefania Barabas</a></p>
       </div>
     </div>
   );
