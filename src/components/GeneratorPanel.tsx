@@ -138,7 +138,12 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
         >
           {gen.isProcessing ? "Generating…" : "Generate palette"}
         </Button>
-        <Button variant="secondary" onClick={gen.reset} className="min-h-[44px] lg:min-h-0">
+        <Button
+          variant="secondary"
+          onClick={gen.reset}
+          disabled={gen.canUndo}
+          className="min-h-[44px] lg:min-h-0"
+        >
           Reset
         </Button>
       </div>

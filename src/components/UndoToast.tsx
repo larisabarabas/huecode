@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { UNDO_SHORTCUT_LABEL, UNDO_WINDOW_MS } from "../hooks/useGeneratorState";
+import Button from "./ui/Button";
 import IconButton from "./ui/IconButton";
 
 interface UndoToastProps {
@@ -32,14 +33,15 @@ export default function UndoToast({ open, themeLabel, onUndo, onDismiss }: UndoT
         <span>
           Palette reset to <span className="font-semibold">{themeLabel}</span>
         </span>
-        <button
+        <Button
           ref={undoRef}
-          type="button"
+          variant="ghost"
+          size="sm"
           onClick={onUndo}
-          className="rounded-md bg-white/15 px-2.5 py-1 font-semibold hover:bg-white/25"
+          className="!bg-white/15 !text-shell-bg hover:!bg-white/25"
         >
           Undo
-        </button>
+        </Button>
         <span className="text-white/45">{UNDO_SHORTCUT_LABEL}</span>
         <IconButton
           label="Dismiss"

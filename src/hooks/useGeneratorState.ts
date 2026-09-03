@@ -48,7 +48,7 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
 
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   /** Theme name that Reset would discard — shown in the confirm modal. */
-  const resetLabel = text.trim() || current.source.label;
+  const resetLabel = current.source.label;
 
   function stopUndoTimer() {
     if (undoTimerRef.current !== null) {
@@ -203,14 +203,18 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     stopUndoTimer();
   }, []);
 
-  // ⌘Z / Ctrl+Z restores the palette while the undo window is open.
+  // ⌘Z / Ctrl+Z restores the palette while the undo window is open — but not
+  // while the user is editing text, where ⌘Z/Ctrl+Z means the field's own undo.
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (!undoSnapshotRef.current) return;
-      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "z") {
-        e.preventDefault();
-        undoReset();
-      }
+      if (!(e.metaKey || e.ctrlKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== "z") return;
+      const target = e.target as HTMLElement | null;
+      const isEditable =
+        target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable;
+      if (isEditable) return;
+      e.preventDefault();
+      undoReset();
     }
     window.addEventListener("keydown", onKeyDown);
     return () => {

@@ -74,7 +74,11 @@ export default function SegmentedControl<T extends string>({
       role="tablist"
       aria-label={label}
       onKeyDown={onKeyDown}
-      className={`inline-flex gap-0.5 rounded-control bg-track p-0.5 ${wrap ? "flex-wrap" : "overflow-x-auto"} ${className}`.trim()}
+      // `overflow-x-auto` makes this a scroll container, which per spec also computes
+      // overflow-y as `auto` — that strips the browser's default content-based min-height
+      // protection, so a squeezed flex-column ancestor can crush this down to near-0
+      // instead of just scrolling. `shrink-0` keeps it at its natural size no matter what.
+      className={`inline-flex shrink-0 gap-0.5 rounded-control bg-track p-0.5 ${wrap ? "flex-wrap" : "overflow-x-auto"} ${className}`.trim()}
     >
       {options.map((opt, i) => {
         const selected = opt.value === value;

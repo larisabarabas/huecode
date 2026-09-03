@@ -1,6 +1,8 @@
-import { COLOR_ROLES, type Palette, type PaletteSource } from "./types";
+import { COLOR_ROLES, SHADE_STEPS, type Palette, type PaletteSource } from "./types";
 
 const KEY = "huecode:last-palette";
+
+const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
 export interface StoredPalette {
   palette: Palette;
@@ -12,7 +14,11 @@ function isValidPalette(value: unknown): value is Palette {
   const record = value as Record<string, unknown>;
   return COLOR_ROLES.every((role) => {
     const scale = record[role] as Record<string, unknown> | undefined;
-    return !!scale && typeof scale[500] === "string";
+    if (!scale) return false;
+    return SHADE_STEPS.every((step) => {
+      const hex = scale[step];
+      return typeof hex === "string" && HEX_COLOR.test(hex);
+    });
   });
 }
 

@@ -31,3 +31,15 @@ export function rateLimit(req: Request, res: Response, next: NextFunction) {
   }
   next();
 }
+
+/**
+ * Best-effort client key from the `x-forwarded-for` header, for runtimes (like
+ * Vercel's serverless functions) that don't give us a pre-parsed `req.ip`.
+ * The header can legally arrive as a single comma-joined string or, depending
+ * on the runtime, as an array of header lines — handle both rather than
+ * assuming the shape and throwing on the other one.
+ */
+export function clientIpFromHeader(value: string | string[] | undefined): string {
+  const first = Array.isArray(value) ? value[0] : value;
+  return first?.split(",")[0]?.trim() || "unknown";
+}

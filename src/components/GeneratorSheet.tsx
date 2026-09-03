@@ -34,7 +34,7 @@ export default function GeneratorSheet({
   tab,
   onTab,
 }: GeneratorSheetProps) {
-  const themeLabel = gen.text.trim() ? `"${gen.text.trim()}"` : source ? `"${source.label}"` : "no theme yet";
+  const themeLabel = `"${source.label}"`;
 
   return (
     <div className="flex-none border-t border-line bg-shell-bg">
