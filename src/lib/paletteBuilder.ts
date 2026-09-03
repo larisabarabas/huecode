@@ -1,5 +1,5 @@
-import { clamp, generateShadeScale } from "./color";
-import { COLOR_ROLES, type ColorRole, type HSL, type Palette } from "./types";
+import { clamp, generateShadeScale } from "./color.js";
+import { COLOR_ROLES, type ColorRole, type HSL, type Palette } from "./types.js";
 
 /** Shortest-path circular mix between two hues (0-360). */
 export function mixHue(h1: number, h2: number, weight: number): number {

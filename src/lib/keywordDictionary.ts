@@ -1,4 +1,4 @@
-import type { HSL } from "./types";
+import type { HSL } from "./types.js";
 
 /**
  * Mood/theme keyword -> base hue & saturation. Curated by hand rather than
