@@ -13,8 +13,8 @@ const AVATARS = [
 
 export default function ComponentsKitPreview() {
   return (
-    <div className="mx-auto flex min-w-220 max-w-275 flex-col gap-3.5 p-6">
-      <div className="grid grid-cols-2 gap-3.5">
+    <div className="mx-auto flex max-w-275 flex-col gap-3.5 p-4 lg:min-w-220 lg:p-6">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
         <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4.5">
           <div className="text-[11px] font-semibold uppercase tracking-[.06em] text-[var(--text-muted)]">
             Buttons
@@ -62,7 +62,7 @@ export default function ComponentsKitPreview() {
               <span className="text-xs font-semibold text-[var(--text)]">Workspace name</span>
               <input
                 readOnly
-                value="Northwind"
+                value="Demo App"
                 className="rounded-[9px] border border-[var(--border)] bg-[var(--bg)] px-2.5 py-2.5 text-[13px] text-[var(--text)] outline-none"
               />
             </label>
@@ -70,7 +70,7 @@ export default function ComponentsKitPreview() {
               <span className="text-xs font-semibold text-[var(--text)]">Billing email</span>
               <input
                 readOnly
-                value="billing@northwind.co"
+                value="billing@demoapp.co"
                 className="rounded-[9px] border border-[var(--p-500)] bg-[var(--bg)] px-2.5 py-2.5 text-[13px] text-[var(--text)] outline-none"
                 style={{ boxShadow: "0 0 0 3px var(--p-100)" }}
               />
@@ -101,7 +101,7 @@ export default function ComponentsKitPreview() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3.5">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
         <div className="flex flex-col gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4.5">
           <div className="text-[11px] font-semibold uppercase tracking-[.06em] text-[var(--text-muted)]">
             Feedback

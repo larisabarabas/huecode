@@ -7,21 +7,24 @@ interface SwatchStripProps {
   palette: Palette;
 }
 
+/**
+ * A continuous decorative ribbon of the current palette — not interactive.
+ * The real, copyable swatches live in the Palette tab.
+ */
 export default function SwatchStrip({ palette }: SwatchStripProps) {
   return (
-    <div className="flex min-w-0 flex-1 gap-0.5">
+    <div
+      aria-hidden="true"
+      className="flex h-6.5 min-w-0 flex-1 overflow-hidden rounded-[6px] border border-line"
+    >
       {STRIP_ROLES.flatMap((role) =>
-        STRIP_STEPS.map((step) => {
-          const hex = palette[role][step];
-          return (
-            <div
-              key={`${role}-${step}`}
-              title={hex}
-              className="h-6.5 flex-1 rounded-[5px]"
-              style={{ backgroundColor: hex }}
-            />
-          );
-        }),
+        STRIP_STEPS.map((step) => (
+          <div
+            key={`${role}-${step}`}
+            className="flex-1"
+            style={{ backgroundColor: palette[role][step] }}
+          />
+        )),
       )}
     </div>
   );

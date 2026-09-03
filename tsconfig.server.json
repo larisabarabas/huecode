@@ -13,6 +13,7 @@
   },
   "include": [
     "server",
+    "api",
     "src/lib/types.ts",
     "src/lib/color.ts",
     "src/lib/paletteBuilder.ts",

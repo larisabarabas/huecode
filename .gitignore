@@ -9,3 +9,9 @@ DevelopmentPlan.md
 BACKLOG.md
 src/.DS_Store
 .DS_Store
+.vercel
+
+# Claude Code: keep personal config out, but allow sharing .claude/settings.json,
+# commands, agents and skills if this repo is opened up later.
+.claude/settings.local.json
+.claude/*.local.json

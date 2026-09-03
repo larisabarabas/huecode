@@ -27,29 +27,29 @@ const PLANS = [
 
 export default function MarketingPreview() {
   return (
-    <div className="min-w-220">
-      <div className="flex items-center gap-6.5 bg-[var(--brand-deep)] px-10 py-4">
-        <span className="text-sm font-bold text-[var(--brand-fg)]">Northwind</span>
-        <span className="text-[12.5px] text-[var(--brand-fg-2)]">Product</span>
-        <span className="text-[12.5px] text-[var(--brand-fg-2)]">Pricing</span>
-        <span className="text-[12.5px] text-[var(--brand-fg-2)]">Docs</span>
+    <div className="lg:min-w-220">
+      <div className="flex items-center gap-6.5 bg-[var(--brand-deep)] px-4 py-3 lg:px-10 lg:py-4">
+        <span className="text-sm font-bold text-[var(--brand-fg)]">Demo App</span>
+        <span className="hidden text-[12.5px] text-[var(--brand-fg-2)] lg:inline">Product</span>
+        <span className="hidden text-[12.5px] text-[var(--brand-fg-2)] lg:inline">Pricing</span>
+        <span className="hidden text-[12.5px] text-[var(--brand-fg-2)] lg:inline">Docs</span>
         <button className="ml-auto rounded-lg bg-[var(--cta-bg)] px-3.5 py-2 text-[12.5px] font-bold text-[var(--cta-fg)]">
           Start free
         </button>
       </div>
 
-      <div className="bg-[var(--brand-deep-2)] px-10 pb-18 pt-16 text-center">
+      <div className="bg-[var(--brand-deep-2)] px-5 pb-10 pt-9 text-center lg:px-10 lg:pb-18 lg:pt-16">
         <span className="inline-block rounded-full bg-[var(--brand-deep-3)] px-3 py-1.5 text-[11.5px] font-semibold text-[var(--brand-fg-2)]">
           New — automatic tax checks
         </span>
-        <h1 className="mx-auto mt-4 max-w-160 text-[44px] font-bold leading-[1.08] tracking-[-0.03em] text-[var(--brand-fg)]">
+        <h1 className="mx-auto mt-4 max-w-160 text-[30px] font-bold leading-[1.08] tracking-[-0.03em] text-[var(--brand-fg)] lg:text-[44px]">
           Invoicing that closes the month for you
         </h1>
         <p className="mx-auto mt-3.5 max-w-120 text-[15px] leading-relaxed text-[var(--brand-fg-2)]">
           Send, chase and reconcile invoices in one place. Built for finance teams who would rather be doing
           something else.
         </p>
-        <div className="mt-6 flex justify-center gap-2.5">
+        <div className="mt-6 flex flex-wrap justify-center gap-2.5">
           <button className="rounded-[10px] bg-[var(--cta-bg)] px-5.5 py-3 text-sm font-bold text-[var(--cta-fg)]">
             Start free trial
           </button>
@@ -59,7 +59,7 @@ export default function MarketingPreview() {
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-270 grid-cols-3 gap-5 bg-[var(--bg)] px-10 py-12">
+      <div className="mx-auto grid max-w-270 grid-cols-1 gap-5 bg-[var(--bg)] px-10 py-12 sm:grid-cols-2 lg:grid-cols-3">
         {FEATURES.map((f) => (
           <div key={f.title}>
             <div className="h-8.5 w-8.5 rounded-[10px] border border-[var(--p-200)] bg-[var(--p-100)]" />
@@ -70,7 +70,7 @@ export default function MarketingPreview() {
       </div>
 
       <div className="bg-[var(--bg)] px-10 pb-14 pt-2">
-        <div className="mx-auto grid max-w-270 grid-cols-3 gap-3.5">
+        <div className="mx-auto grid max-w-270 grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
           {PLANS.map((p) => (
             <div
               key={p.name}

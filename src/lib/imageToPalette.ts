@@ -3,6 +3,48 @@ import { hexToHsl } from "./color";
 import { buildPaletteFromRoles, mixHue } from "./paletteBuilder";
 import type { HSL, Palette } from "./types";
 
+export class ImagePaletteError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ImagePaletteError";
+  }
+}
+
+/** Longest edge (px) we downscale to before color extraction. */
+const EXTRACT_MAX_DIM = 240;
+
+/**
+ * Decode + downscale the file with createImageBitmap (the decode runs off the
+ * main thread), so Vibrant only ever quantizes a tiny image. Falls back to
+ * handing Vibrant the raw file if createImageBitmap / canvas is unavailable.
+ */
+async function prepareImageSource(file: File): Promise<{ src: string; cleanup: () => void }> {
+  if (typeof createImageBitmap === "function") {
+    let bitmap: ImageBitmap | null = null;
+    try {
+      bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, EXTRACT_MAX_DIM / Math.max(bitmap.width, bitmap.height));
+      const w = Math.max(1, Math.round(bitmap.width * scale));
+      const h = Math.max(1, Math.round(bitmap.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(bitmap, 0, 0, w, h);
+        return { src: canvas.toDataURL("image/png"), cleanup: () => {} };
+      }
+    } catch {
+      // Unsupported by createImageBitmap (e.g. some SVGs) — fall back to Vibrant's own <img> decode.
+    } finally {
+      bitmap?.close();
+    }
+  }
+
+  const url = URL.createObjectURL(file);
+  return { src: url, cleanup: () => URL.revokeObjectURL(url) };
+}
+
 const SWATCH_NAMES = ["Vibrant", "DarkVibrant", "LightVibrant", "Muted", "DarkMuted", "LightMuted"] as const;
 type SwatchName = (typeof SWATCH_NAMES)[number];
 type Role = "primary" | "secondary" | "accent" | "neutral";
@@ -56,11 +98,14 @@ export async function extractPaletteColors(imageUrl: string): Promise<Record<Rol
 }
 
 export async function paletteFromImage(file: File): Promise<Palette> {
-  const url = URL.createObjectURL(file);
+  const { src, cleanup } = await prepareImageSource(file);
   try {
-    const roles = await extractPaletteColors(url);
+    const roles = await extractPaletteColors(src);
     return buildPaletteFromRoles(roles);
+  } catch (err) {
+    if (err instanceof ImagePaletteError) throw err;
+    throw new ImagePaletteError("That image looks corrupted or is in an unsupported format.");
   } finally {
-    URL.revokeObjectURL(url);
+    cleanup();
   }
 }

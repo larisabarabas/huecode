@@ -17,14 +17,16 @@ export default function PreviewPane({ palette, mode, tab }: PreviewPaneProps) {
   const vars = useMemo(() => paletteToCssVars(palette, mode), [palette, mode]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col px-3.5 pt-0">
+    <div className="flex min-h-[200px] flex-1 flex-col px-3.5 pt-0 lg:min-h-0">
       <div
-        className="min-h-0 flex-1 overflow-y-auto overflow-x-auto rounded-t-2xl border border-b-0 border-[var(--border)] bg-[var(--bg)] text-[var(--text)]"
+        className="min-h-0 flex-1 overflow-hidden rounded-t-2xl border border-b-0 border-[var(--border)] bg-[var(--bg)] text-[var(--text)]"
         style={vars as CSSProperties}
       >
-        {tab === "app" && <AppPreview />}
-        {tab === "components" && <ComponentsKitPreview />}
-        {tab === "marketing" && <MarketingPreview />}
+        <div className="h-full overflow-auto">
+          {tab === "app" && <AppPreview />}
+          {tab === "components" && <ComponentsKitPreview />}
+          {tab === "marketing" && <MarketingPreview />}
+        </div>
       </div>
     </div>
   );

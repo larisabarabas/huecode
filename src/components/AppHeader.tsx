@@ -1,11 +1,14 @@
+import { Moon, Sun } from "lucide-react";
 import logo from "../assets/logo.png";
 import type { PreviewMode } from "../lib/previewTheme";
 import type { PreviewTab } from "./PreviewPane";
+import SegmentedControl from "./ui/SegmentedControl";
+import Switch from "./ui/Switch";
 
-const PREVIEW_TABS: { id: PreviewTab; label: string }[] = [
-  { id: "app", label: "App" },
-  { id: "components", label: "Components" },
-  { id: "marketing", label: "Marketing" },
+const PREVIEW_TABS: { value: PreviewTab; label: string }[] = [
+  { value: "app", label: "App" },
+  { value: "components", label: "Components" },
+  { value: "marketing", label: "Marketing" },
 ];
 
 interface AppHeaderProps {
@@ -16,41 +19,36 @@ interface AppHeaderProps {
 }
 
 export default function AppHeader({ previewTab, onPreviewTab, previewMode, onPreviewMode }: AppHeaderProps) {
-  const dark = previewMode === "dark";
-
   return (
-    <div className="flex items-center justify-between px-3.5 pb-3 pt-3.5">
-      <div className="flex items-center gap-2.5">
-        <img src={logo} alt="Huecode" className="h-9 w-9 rounded-md" />
+    <div className="flex flex-wrap items-center gap-2 px-3.5 pb-3 pt-3.5 lg:justify-between">
+      <div className="flex min-w-0 items-center gap-2 lg:gap-2.5">
+        <img src={logo} alt="Huecode" className="h-7 w-7 rounded-md lg:h-9 lg:w-9" />
         <div className="flex flex-col gap-px">
-          <span className="text-[26px] font-semibold tracking-tight text-ink">Huecode</span>
+          <span className="text-xl font-semibold tracking-tight text-ink lg:text-[26px]">Huecode</span>
         </div>
-        <span className="ml-1 h-5 w-px bg-line" />
-        <span className="text-xs font-medium text-muted">Text or an image to a full Tailwind palette with live preview</span>
+        <span className="ml-1 hidden h-5 w-px bg-line lg:block" />
+        <span className="hidden text-xs font-medium text-muted lg:inline">
+          Text or an image to a full TailwindCSS palette with live preview
+        </span>
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="flex gap-0.5 rounded-[9px] bg-chrome p-0.5">
-          {PREVIEW_TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => onPreviewTab(t.id)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-                previewTab === t.id ? "bg-tab-blue text-shell-bg" : "text-muted-2"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-        <button
-          type="button"
-          onClick={() => onPreviewMode(dark ? "light" : "dark")}
-          className="rounded-lg bg-chrome px-3 py-2 text-xs font-medium text-muted hover:text-ink"
-        >
-          {dark ? "Dark" : "Light"}
-        </button>
+      <div className="flex min-w-0 items-center gap-2">
+        <SegmentedControl
+          label="Preview surface"
+          options={PREVIEW_TABS}
+          value={previewTab}
+          onChange={onPreviewTab}
+          className="min-w-0"
+        />
+        <Switch
+          label="Dark mode"
+          size="md"
+          knobIconOff={<Sun size={11} strokeWidth={2.25} aria-hidden="true" />}
+          knobIconOn={<Moon size={11} strokeWidth={2.25} aria-hidden="true" />}
+          checked={previewMode === "dark"}
+          onChange={(dark) => onPreviewMode(dark ? "dark" : "light")}
+          className="flex-none"
+        />
       </div>
     </div>
   );

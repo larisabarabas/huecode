@@ -27,11 +27,37 @@ const TONE_PREFIX = { success: "su", warning: "w", error: "e", neutral: "n" } as
 
 export default function AppPreview() {
   return (
-    <div className="flex min-h-full min-w-220">
-      <aside className="flex w-52.5 flex-none flex-col gap-4.5 border-r border-[var(--border)] bg-[var(--surface)] p-3">
+    <div className="flex min-h-full flex-col lg:min-w-220 lg:flex-row">
+      <div className="flex flex-col gap-2.5 border-b border-[var(--border)] bg-[var(--surface)] p-3.5 lg:hidden">
+        <div className="flex items-center gap-2">
+          <div className="h-6.5 w-6.5 rounded-lg bg-[var(--p-600)]" />
+          <span className="text-sm font-semibold text-[var(--text)]">Demo App</span>
+          <span className="ml-auto flex flex-col gap-[3px]">
+            <span className="h-0.5 w-4 rounded bg-[var(--text-muted)]" />
+            <span className="h-0.5 w-4 rounded bg-[var(--text-muted)]" />
+            <span className="h-0.5 w-4 rounded bg-[var(--text-muted)]" />
+          </span>
+        </div>
+        <div className="flex gap-1.5 overflow-x-auto">
+          {["Overview", "Customers", "Invoices", "Reports"].map((item, i) => (
+            <span
+              key={item}
+              className="flex-none rounded-full px-2.5 py-1.5 text-[12px] font-semibold"
+              style={{
+                backgroundColor: i === 0 ? "var(--p-50)" : "var(--n-100)",
+                color: i === 0 ? "var(--p-700)" : "var(--text-muted)",
+              }}
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <aside className="hidden w-52.5 flex-none flex-col gap-4.5 border-r border-[var(--border)] bg-[var(--surface)] p-3 lg:flex">
         <div className="flex items-center gap-2 px-2">
           <div className="h-6.5 w-6.5 rounded-lg bg-[var(--p-600)]" />
-          <span className="text-sm font-semibold text-[var(--text)]">Northwind</span>
+          <span className="text-sm font-semibold text-[var(--text)]">Demo App</span>
         </div>
         <nav className="flex flex-col gap-0.5">
           {NAV_ITEMS.map((item, i) => (
@@ -75,7 +101,7 @@ export default function AppPreview() {
           </div>
         </header>
 
-        <div className="flex flex-col gap-4 p-5">
+        <div className="flex flex-col gap-4 p-3.5 lg:p-5">
           <div className="flex items-start gap-2.5 rounded-[10px] border border-[var(--i-200)] bg-[var(--i-50)] px-3.5 py-2.5">
             <span className="mt-0.5 h-4 w-4 flex-none rounded-full bg-[var(--i-500)]" />
             <div>
@@ -85,7 +111,7 @@ export default function AppPreview() {
             <button className="ml-auto px-1 text-xs font-semibold text-[var(--i-700)]">Review</button>
           </div>
 
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {STATS.map((s) => (
               <div key={s.label} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3.5">
                 <div className="text-[11.5px] font-medium uppercase tracking-[.02em] text-[var(--text-muted)]">
@@ -105,7 +131,7 @@ export default function AppPreview() {
             ))}
           </div>
 
-          <div className="grid grid-cols-[1.6fr_1fr] gap-3">
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.6fr_1fr]">
             <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
               <div className="flex items-baseline justify-between">
                 <div className="text-[13.5px] font-semibold text-[var(--text)]">Revenue</div>
@@ -158,7 +184,8 @@ export default function AppPreview() {
                 </span>
               </div>
             </div>
-            <table className="w-full border-collapse">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[520px] border-collapse">
               <thead>
                 <tr className="bg-[var(--n-50)]">
                   {["Client", "Number", "Status", "Amount"].map((h, i) => (
@@ -200,6 +227,7 @@ export default function AppPreview() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>
