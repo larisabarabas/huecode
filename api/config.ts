@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { isAiConfigured } from "../server/env";
+import { isAiConfigured } from "../server/env.js";
 
 // Never returns the key itself — only whether the server has one configured,
 // so the frontend can show/hide the AI option without ever handling a secret.

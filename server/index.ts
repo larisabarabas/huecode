@@ -2,9 +2,9 @@ import express from "express";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { PORT, isAiConfigured } from "./env";
-import { rateLimit } from "./rateLimit";
-import { handlePaletteAiRequest } from "./paletteAiRoute";
+import { PORT, isAiConfigured } from "./env.js";
+import { rateLimit } from "./rateLimit.js";
+import { handlePaletteAiRequest } from "./paletteAiRoute.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(__dirname, "../dist");

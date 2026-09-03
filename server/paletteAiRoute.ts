@@ -1,5 +1,5 @@
-import { isAiConfigured } from "./env";
-import { proposePaletteFromTheme } from "./anthropicPalette";
+import { isAiConfigured } from "./env.js";
+import { proposePaletteFromTheme } from "./anthropicPalette.js";
 
 export const MAX_THEME_LENGTH = 200;
 

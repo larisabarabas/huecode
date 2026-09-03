@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { ANTHROPIC_API_KEY, ANTHROPIC_MODEL } from "./env";
-import { SEMANTIC_ANCHORS } from "../src/lib/paletteBuilder";
-import { COLOR_ROLES, type ColorRole, type HSL } from "../src/lib/types";
+import { ANTHROPIC_API_KEY, ANTHROPIC_MODEL } from "./env.js";
+import { SEMANTIC_ANCHORS } from "../src/lib/paletteBuilder.js";
+import { COLOR_ROLES, type ColorRole, type HSL } from "../src/lib/types.js";
 
 const client = ANTHROPIC_API_KEY ? new Anthropic({ apiKey: ANTHROPIC_API_KEY }) : null;
 
