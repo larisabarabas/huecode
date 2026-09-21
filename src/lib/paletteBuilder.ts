@@ -1,4 +1,5 @@
 import { clamp, generateShadeScale } from "./color.js";
+import { jitter } from "./random.js";
 import { COLOR_ROLES, type ColorRole, type HSL, type Palette } from "./types.js";
 
 /** Shortest-path circular mix between two hues (0-360). */
@@ -89,10 +90,29 @@ export function buildPaletteFromRoles({ primary, secondary, accent, neutral }: P
   return assemblePalette({ primary, secondary, accent, neutral, ...semantics });
 }
 
-/** Derives primary/secondary/accent/neutral from a single base hue via color-theory rotation. */
-export function buildPaletteFromBase(base: HSL): Palette {
-  const secondary: HSL = { h: mixHue(base.h, base.h - 30, 1), s: base.s * 0.85, l: base.l };
-  const accent: HSL = { h: mixHue(base.h, base.h + 180, 1), s: Math.min(base.s * 1.1, 100), l: base.l };
+/**
+ * Derives primary/secondary/accent/neutral from a single base hue via color-theory
+ * rotation. Passing a seeded `rng` jitters the secondary/accent hue offsets and
+ * saturation multipliers within bounded ranges instead of using the fixed defaults —
+ * this is what gives a shuffled variation a different *relationship* between colors,
+ * not just a shifted base hue. Omitting `rng` reproduces today's exact fixed output.
+ */
+export function buildPaletteFromBase(base: HSL, rng?: () => number): Palette {
+  const secondaryOffset = rng ? -30 + jitter(rng, 15) : -30; // analogous: -45..-15
+  const accentOffset = rng ? 180 + jitter(rng, 30) : 180; // stays "opposite": 150..210
+  const secondarySatMul = rng ? 0.85 + jitter(rng, 0.12) : 0.85;
+  const accentSatMul = rng ? 1.1 + jitter(rng, 0.12) : 1.1;
+
+  const secondary: HSL = {
+    h: mixHue(base.h, base.h + secondaryOffset, 1),
+    s: clamp(base.s * secondarySatMul, 0, 100),
+    l: base.l,
+  };
+  const accent: HSL = {
+    h: mixHue(base.h, base.h + accentOffset, 1),
+    s: clamp(base.s * accentSatMul, 0, 100),
+    l: base.l,
+  };
   const neutral: HSL = { h: base.h, s: Math.min(base.s * 0.15, 12), l: 50 };
 
   return buildPaletteFromRoles({ primary: base, secondary, accent, neutral });

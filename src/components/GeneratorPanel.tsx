@@ -127,6 +127,9 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
       {source.note && gen.inputMode === "text" && (
         <p className="rounded-md bg-chrome px-2.5 py-2 text-[11.5px] leading-relaxed text-muted-2">{source.note}</p>
       )}
+      {gen.variationIndex > 0 && gen.inputMode === "text" && (
+        <p className="text-[11px] text-muted-2">Variation {gen.variationIndex}</p>
+      )}
       {gen.error && <p className="text-xs text-red-600">{gen.error}</p>}
 
       <div className="mt-auto flex flex-wrap gap-2 pt-1">
@@ -138,6 +141,21 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
         >
           {gen.isProcessing ? "Generating…" : "Generate palette"}
         </Button>
+        {gen.inputMode === "text" && (
+          <Button
+            variant="secondary"
+            onClick={gen.shuffle}
+            disabled={!gen.canShuffle}
+            title={
+              !gen.canShuffle
+                ? "Generate a palette for this text first (and turn off AI mode) to shuffle variations"
+                : undefined
+            }
+            className="min-h-[44px] lg:min-h-0"
+          >
+            Shuffle
+          </Button>
+        )}
         <Button
           variant="secondary"
           onClick={gen.reset}

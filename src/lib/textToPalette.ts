@@ -1,6 +1,8 @@
 import type { HSL, Palette } from "./types";
+import { clamp } from "./color.js";
 import { hashToHue, KEYWORD_DICTIONARY } from "./keywordDictionary";
 import { buildPaletteFromBase, mixHue } from "./paletteBuilder";
+import { jitter, mulberry32 } from "./random.js";
 
 /** Circular mean of a set of hues, weighted equally. */
 function meanHue(hues: number[]): number {
@@ -42,6 +44,34 @@ export function themeTextToBaseColor(text: string): HSL {
   return { h: mixHue(matchedHue, unmatchedHue, nudgeWeight), s, l };
 }
 
-export function paletteFromThemeText(text: string): Palette {
-  return buildPaletteFromBase(themeTextToBaseColor(text));
+/** Same tiny hash as hashToHue, kept local: this seeds variation, not hue selection. */
+function hashSeed(text: string): number {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = (hash << 5) - hash + text.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash;
+}
+
+/** Nudges a color within a bounded range so a shuffled variation stays recognizable. */
+function applyVariation(base: HSL, rng: () => number): HSL {
+  return {
+    h: (base.h + jitter(rng, 15) + 360) % 360,
+    s: clamp(base.s + jitter(rng, 10), 20, 100),
+    l: clamp(base.l + jitter(rng, 8), 20, 80),
+  };
+}
+
+/**
+ * Builds a palette from free text. `variationIndex` 0 (the default) is the exact
+ * deterministic mapping from text to palette. Any positive `variationIndex` seeds a
+ * bounded, reproducible jitter — the same (text, variationIndex) pair always yields
+ * the same palette, but different indices diverge from each other and from 0.
+ */
+export function paletteFromThemeText(text: string, variationIndex = 0): Palette {
+  const base = themeTextToBaseColor(text);
+  if (variationIndex <= 0) return buildPaletteFromBase(base);
+  const rng = mulberry32(hashSeed(text) + variationIndex);
+  return buildPaletteFromBase(applyVariation(base, rng), rng);
 }
