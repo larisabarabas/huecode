@@ -127,7 +127,7 @@ export default function GeneratorPanel({ gen, source }: GeneratorPanelProps) {
       {source.note && gen.inputMode === "text" && (
         <p className="rounded-md bg-chrome px-2.5 py-2 text-[11.5px] leading-relaxed text-muted-2">{source.note}</p>
       )}
-      {gen.variationIndex > 0 && gen.inputMode === "text" && (
+      {gen.variationIndex > 0 && gen.inputMode === "text" && !source.proposedColors && (
         <p className="text-[11px] text-muted-2">Variation {gen.variationIndex}</p>
       )}
       {gen.error && <p className="text-xs text-red-600">{gen.error}</p>}

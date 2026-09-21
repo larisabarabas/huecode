@@ -96,6 +96,7 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     try {
       const { palette, proposedColors, rationale } = await paletteFromThemeTextAI(trimmed, controller.signal);
       if (aiAbortRef.current !== controller) return; // superseded or cancelled mid-flight
+      setVariationIndex(0);
       emit(palette, {
         kind: "text",
         label: trimmed,
@@ -146,6 +147,7 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     setIsProcessing(true);
     try {
       const palette = await paletteFromImage(file);
+      setVariationIndex(0);
       emit(palette, { kind: "image", label: file.name });
     } catch (err) {
       setError(
