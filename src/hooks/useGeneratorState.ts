@@ -30,6 +30,7 @@ interface UseGeneratorStateArgs {
 export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs) {
   const [inputMode, setInputMode] = useState<"text" | "image">("text");
   const [text, setText] = useState("");
+  const [variationIndex, setVariationIndex] = useState(0);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,12 +70,19 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     onGenerate(palette, source);
   }
 
+  /** Editing the text always drops back to the canonical (non-shuffled) result. */
+  function updateText(next: string) {
+    setText(next);
+    setVariationIndex(0);
+  }
+
   async function generateFromText() {
     const trimmed = text.trim();
     if (!trimmed) return;
 
     if (!useAi) {
       setError(null);
+      setVariationIndex(0);
       emit(paletteFromThemeText(trimmed), { kind: "text", label: trimmed });
       return;
     }
@@ -88,6 +96,7 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     try {
       const { palette, proposedColors, rationale } = await paletteFromThemeTextAI(trimmed, controller.signal);
       if (aiAbortRef.current !== controller) return; // superseded or cancelled mid-flight
+      setVariationIndex(0);
       emit(palette, {
         kind: "text",
         label: trimmed,
@@ -138,6 +147,7 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     setIsProcessing(true);
     try {
       const palette = await paletteFromImage(file);
+      setVariationIndex(0);
       emit(palette, { kind: "image", label: file.name });
     } catch (err) {
       setError(
@@ -156,6 +166,27 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     return generateFromImage();
   }
 
+  /**
+   * Advances to a new-but-related variation of the palette currently on screen.
+   * Text-path only — re-derives from the source label (what actually produced the
+   * on-screen palette), not the live textarea, so it never shuffles a half-typed edit.
+   */
+  function shuffle() {
+    const { source } = currentRef.current;
+    if (source.kind !== "text" || source.proposedColors) return;
+    const next = variationIndex + 1;
+    setVariationIndex(next);
+    emit(paletteFromThemeText(source.label, next), { kind: "text", label: source.label });
+  }
+
+  const canShuffle =
+    inputMode === "text" &&
+    !useAi &&
+    !isProcessing &&
+    current.source.kind === "text" &&
+    !current.source.proposedColors &&
+    text.trim() === current.source.label;
+
   /** Wipe the inputs and drop the palette back to the default. Internal — callers use reset(). */
   function wipe() {
     aiAbortRef.current?.abort();
@@ -165,6 +196,7 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     setImagePreview(null);
     imageFileRef.current = null;
     setText("");
+    setVariationIndex(0);
     setError(null);
     onGenerate(paletteFromThemeText(DEFAULT_THEME), { kind: "text", label: DEFAULT_THEME });
   }
@@ -194,6 +226,7 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     if (!snap) return;
     onGenerate(snap.palette, snap.source);
     setText(snap.text);
+    setVariationIndex(0);
     setUndoSnapshot(null);
     stopUndoTimer();
   }, [onGenerate]);
@@ -227,7 +260,10 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     inputMode,
     setInputMode,
     text,
-    setText,
+    setText: updateText,
+    variationIndex,
+    canShuffle,
+    shuffle,
     useAi,
     setUseAi,
     aiAvailable,

@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { hexToHsl } from "./color.js";
 import { hashToHue, KEYWORD_DICTIONARY } from "./keywordDictionary.js";
 import { paletteFromThemeText, themeTextToBaseColor } from "./textToPalette.js";
 import { COLOR_ROLES } from "./types.js";
+
+/** Circular hue distance (0 = same hue, 180 = opposite), mirroring paletteBuilder.test.ts. */
+function hueDiff(a: number, b: number): number {
+  return Math.abs(((a - b + 540) % 360) - 180);
+}
 
 describe("themeTextToBaseColor", () => {
   it("falls back to a hash-derived hue when no word matches the dictionary", () => {
@@ -63,5 +69,37 @@ describe("paletteFromThemeText", () => {
     const a = paletteFromThemeText("cyberpunk neon");
     const b = paletteFromThemeText("cyberpunk neon");
     expect(a).toEqual(b);
+  });
+
+  it("defaults variationIndex to 0, matching an explicit 0", () => {
+    expect(paletteFromThemeText("sunset")).toEqual(paletteFromThemeText("sunset", 0));
+  });
+
+  it("is deterministic for the same (text, variationIndex) pair", () => {
+    const a = paletteFromThemeText("sunset", 1);
+    const b = paletteFromThemeText("sunset", 1);
+    expect(a).toEqual(b);
+  });
+
+  it("a positive variationIndex diverges from the canonical (0) result", () => {
+    const canonical = paletteFromThemeText("sunset");
+    const shuffled = paletteFromThemeText("sunset", 1);
+    expect(shuffled).not.toEqual(canonical);
+  });
+
+  it("different variationIndex values diverge from each other", () => {
+    const first = paletteFromThemeText("sunset", 1);
+    const second = paletteFromThemeText("sunset", 2);
+    expect(first).not.toEqual(second);
+  });
+
+  it("keeps a shuffled hue within the jitter window of the keyword hue", () => {
+    const sunset = KEYWORD_DICTIONARY.sunset;
+    for (let variationIndex = 1; variationIndex <= 5; variationIndex++) {
+      const shuffled = paletteFromThemeText("sunset", variationIndex);
+      const shuffledHue = hexToHsl(shuffled.primary[500]).h;
+      // ±15° base jitter, +1 for hex-quantization slack.
+      expect(hueDiff(shuffledHue, sunset.h)).toBeLessThanOrEqual(16);
+    }
   });
 });

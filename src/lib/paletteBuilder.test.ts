@@ -7,6 +7,7 @@ import {
   buildPaletteFromRoles,
   mixHue,
 } from "./paletteBuilder.js";
+import { mulberry32 } from "./random.js";
 import { COLOR_ROLES, SHADE_STEPS, type HSL } from "./types.js";
 
 const role = (h: number, s: number, l: number): HSL => ({ h, s, l });
@@ -112,5 +113,25 @@ describe("buildPaletteFromBase", () => {
     const primaryHue = hexToHsl(palette.primary[500]).h;
     const accentHue = hexToHsl(palette.accent[500]).h;
     expect(Math.abs(((accentHue - primaryHue + 540) % 360) - 180)).toBeGreaterThan(90);
+  });
+
+  it("produces a full 8-role palette when passed a seeded rng", () => {
+    const base = role(210, 60, 50);
+    const palette = buildPaletteFromBase(base, mulberry32(1));
+    expect(Object.keys(palette).sort()).toEqual([...COLOR_ROLES].sort());
+  });
+
+  it("jitters secondary/accent hues away from the fixed defaults when given an rng", () => {
+    const base = role(210, 60, 50);
+    const fixed = buildPaletteFromBase(base);
+    const jittered = buildPaletteFromBase(base, mulberry32(1));
+
+    const fixedSecondaryHue = hexToHsl(fixed.secondary[500]).h;
+    const jitteredSecondaryHue = hexToHsl(jittered.secondary[500]).h;
+    const fixedAccentHue = hexToHsl(fixed.accent[500]).h;
+    const jitteredAccentHue = hexToHsl(jittered.accent[500]).h;
+
+    expect(jitteredSecondaryHue).not.toBeCloseTo(fixedSecondaryHue, 0);
+    expect(jitteredAccentHue).not.toBeCloseTo(fixedAccentHue, 0);
   });
 });
