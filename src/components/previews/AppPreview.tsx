@@ -1,5 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { Activity, BarChart3, Bell, CircleHelp, Download, Home, LayoutGrid, Plus, Search, Settings, User } from "lucide-react";
+import { useWideViewport } from "../../hooks/useShellLayout";
 
 const NAV_WORKSPACE = [
   { label: "Overview", icon: Home, active: true, badge: null },
@@ -57,11 +58,20 @@ const cardStyle: CSSProperties = {
 };
 
 export default function AppPreview() {
+  const wide = useWideViewport();
   const [autoRetry, setAutoRetry] = useState(true);
   const [weeklyDigest, setWeeklyDigest] = useState(false);
 
   return (
-    <div style={{ display: "flex", alignItems: "stretch", minHeight: 720 }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: wide ? "row" : "column",
+        alignItems: "stretch",
+        minHeight: wide ? 720 : 0,
+      }}
+    >
+      {wide && (
       <aside
         style={{
           display: "flex",
@@ -226,6 +236,7 @@ export default function AppPreview() {
           <span style={{ fontSize: 11, color: "var(--text-3)", lineHeight: 1.4 }}>Resets in 12 days</span>
         </div>
       </aside>
+      )}
 
       <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
         <header

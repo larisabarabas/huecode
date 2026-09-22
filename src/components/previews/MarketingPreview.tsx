@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { AlignLeft } from "lucide-react";
+import { useWideViewport } from "../../hooks/useShellLayout";
 
 const NAV_LINKS = ["Product", "Docs", "Pricing", "Changelog"];
 const LOGOS = ["Kestrel", "Foundry", "Ovid Labs", "Marrow", "Tessellate"];
@@ -41,18 +42,31 @@ function accentButton(large = false): CSSProperties {
 }
 
 export default function MarketingPreview() {
+  const wide = useWideViewport();
+
   return (
     <div>
       <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "center",
-          gap: "14px 22px",
-          padding: "14px 24px",
-          borderBottom: "1px solid var(--border)",
-          background: "var(--surface)",
-        }}
+        style={
+          wide
+            ? {
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: "14px 22px",
+                padding: "14px 24px",
+                borderBottom: "1px solid var(--border)",
+                background: "var(--surface)",
+              }
+            : {
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "12px 16px",
+                borderBottom: "1px solid var(--border)",
+                background: "var(--surface)",
+              }
+        }
       >
         <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span
@@ -73,16 +87,17 @@ export default function MarketingPreview() {
           </span>
           <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: "-.01em", color: "var(--text)" }}>Northline</span>
         </span>
-        {NAV_LINKS.map((link) => (
-          <a
-            key={link}
-            href="#"
-            className="text-[var(--text-2)] transition-colors hover:text-[var(--text)]"
-            style={{ fontSize: 12.5, textDecoration: "none" }}
-          >
-            {link}
-          </a>
-        ))}
+        {wide &&
+          NAV_LINKS.map((link) => (
+            <a
+              key={link}
+              href="#"
+              className="text-[var(--text-2)] transition-colors hover:text-[var(--text)]"
+              style={{ fontSize: 12.5, textDecoration: "none" }}
+            >
+              {link}
+            </a>
+          ))}
         <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
           <a
             href="#"
@@ -186,35 +201,37 @@ export default function MarketingPreview() {
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "stretch", minHeight: 250, background: "var(--bg)" }}>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 7,
-                width: 132,
-                flex: "none",
-                padding: "13px 10px",
-                borderRight: "1px solid var(--border)",
-                background: "var(--surface)",
-              }}
-            >
-              <span style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
-                <span style={{ width: 16, height: 16, borderRadius: 5, background: "var(--accent)" }} />
-                <span style={{ height: 7, width: 46, borderRadius: 999, background: "var(--surface-3)" }} />
-              </span>
-              <span style={{ display: "flex", alignItems: "center", gap: 7, padding: "5px 7px", borderRadius: "var(--r-xs)", background: "var(--accent-soft)" }}>
-                <span style={{ width: 5, height: 5, borderRadius: 999, background: "var(--accent)" }} />
-                <span style={{ height: 6, width: 44, borderRadius: 999, background: "var(--accent-soft-fg)", opacity: 0.5 }} />
-              </span>
-              {[52, 38, 48].map((w, i) => (
-                <span key={i} style={{ display: "flex", alignItems: "center", gap: 7, padding: "5px 7px" }}>
-                  <span style={{ width: 5, height: 5, borderRadius: 999, background: "var(--border-strong)" }} />
-                  <span style={{ height: 6, width: w, borderRadius: 999, background: "var(--surface-3)" }} />
+            {wide && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 7,
+                  width: 132,
+                  flex: "none",
+                  padding: "13px 10px",
+                  borderRight: "1px solid var(--border)",
+                  background: "var(--surface)",
+                }}
+              >
+                <span style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
+                  <span style={{ width: 16, height: 16, borderRadius: 5, background: "var(--accent)" }} />
+                  <span style={{ height: 7, width: 46, borderRadius: 999, background: "var(--surface-3)" }} />
                 </span>
-              ))}
-            </div>
+                <span style={{ display: "flex", alignItems: "center", gap: 7, padding: "5px 7px", borderRadius: "var(--r-xs)", background: "var(--accent-soft)" }}>
+                  <span style={{ width: 5, height: 5, borderRadius: 999, background: "var(--accent)" }} />
+                  <span style={{ height: 6, width: 44, borderRadius: 999, background: "var(--accent-soft-fg)", opacity: 0.5 }} />
+                </span>
+                {[52, 38, 48].map((w, i) => (
+                  <span key={i} style={{ display: "flex", alignItems: "center", gap: 7, padding: "5px 7px" }}>
+                    <span style={{ width: 5, height: 5, borderRadius: 999, background: "var(--border-strong)" }} />
+                    <span style={{ height: 6, width: w, borderRadius: 999, background: "var(--surface-3)" }} />
+                  </span>
+                ))}
+              </div>
+            )}
             <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 0, flex: 1, padding: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={wide ? { display: "flex", alignItems: "center", gap: 10 } : { display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 10px" }}>
                 <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: "-.015em", color: "var(--text)" }}>Overview</span>
                 <span
                   style={{
@@ -247,7 +264,16 @@ export default function MarketingPreview() {
                   New pipeline
                 </span>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", background: "var(--surface)", overflow: "hidden" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: wide ? "repeat(3,1fr)" : "repeat(auto-fit,minmax(112px,1fr))",
+                  border: "1px solid var(--border)",
+                  borderRadius: "var(--r-md)",
+                  background: "var(--surface)",
+                  overflow: "hidden",
+                }}
+              >
                 {HERO_STATS.map((s, i) => (
                   <div key={s.label} style={{ display: "flex", flexDirection: "column", gap: 5, padding: "11px 12px", borderRight: i < HERO_STATS.length - 1 ? "1px solid var(--border)" : undefined }}>
                     <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 8.5, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--text-3)" }}>

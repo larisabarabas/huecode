@@ -15,12 +15,10 @@ export interface ShellLayout {
   showStrip: boolean;
 }
 
-/**
- * Resolves the generator's rail/panel state from the current breakpoint and whether the
- * user has it open. A matrix collapse mode was considered and cut — rail is the only
- * collapsed state, so this is a plain two-way split.
- */
-export function useShellLayout(panelOpen: boolean): ShellLayout {
+/** The same 1024px breakpoint the whole shell reacts to, for any component (e.g. the App/
+ * Marketing preview mocks) that needs to hide/reflow content on its own rather than through
+ * a prop passed down from App.tsx. */
+export function useWideViewport(): boolean {
   const [wide, setWide] = useState(() => window.matchMedia(WIDE_QUERY).matches);
 
   useEffect(() => {
@@ -31,6 +29,17 @@ export function useShellLayout(panelOpen: boolean): ShellLayout {
     query.addEventListener("change", handleChange);
     return () => query.removeEventListener("change", handleChange);
   }, []);
+
+  return wide;
+}
+
+/**
+ * Resolves the generator's rail/panel state from the current breakpoint and whether the
+ * user has it open. A matrix collapse mode was considered and cut — rail is the only
+ * collapsed state, so this is a plain two-way split.
+ */
+export function useShellLayout(panelOpen: boolean): ShellLayout {
+  const wide = useWideViewport();
 
   return {
     wide,
