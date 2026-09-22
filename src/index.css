@@ -4,33 +4,63 @@
   --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  --color-shell-bg: #fdfffc;
-  --color-ink: #1a1a24;
-  --color-muted: #6e6a8a;
-  --color-muted-2: #615c7e;
-  --color-chrome: #f1eff6;
-  --color-chrome-2: #edeaf4;
-  --color-line: rgba(154, 148, 188, 0.45);
+  /* Shell chrome — fixed, never palette-driven. */
+  --color-shell-bg: #f2f1f5;
+  --color-ink: #17161f;
+  --color-muted: #8b87a3;
+  --color-muted-2: #6b6880;
+  --color-muted-3: #4a4760;
+  --color-chrome: #f4f3f8;
+  --color-chrome-2: #ebe9f2;
+  --color-panel-inset: #f8f7fb;
+  --color-line: rgba(23, 22, 31, 0.09);
   --color-coral: #fa7e61;
-  --color-tab-blue: #235789;
+  /* Focus ring — kept dark rather than blue so it clears 3:1 against the coral and purple
+     fills it sometimes has to ring (verified: ~3.4:1 on purple, ~7:1 on coral, ~16:1 on the
+     page bg — the old blue only cleared ~2.9:1 on coral and ~1.4:1 on purple). */
+  --color-tab-blue: #17161f;
   --color-chip-purple: #9b5094;
-  --color-code-bg: #12121a;
+  --color-code-bg: #121118;
   --color-danger: #c62828;
   --color-danger-fg: #ffffff;
 
   /* Control system — one geometry + one "selected" treatment for every button,
-     segment and chip. The selected fill lives here so it's a one-line change. */
-  --color-track: #e9e6f1;
-  --color-selected: #9b5094;
-  --color-selected-fg: #fdfffc;
+     segment and chip. The selected fill lives here so it's a one-line change: a
+     white pill + shadow — SegmentedControl.tsx adds a hairline border on top
+     since the flat white-on-track contrast alone doesn't clear 3:1. */
+  --color-track: #eceaf3;
+  --color-selected: #ffffff;
+  --color-selected-fg: #17161f;
+  --shadow-selected: 0 1px 2px rgba(23, 22, 31, 0.12);
 
-  --radius-control: 9px;
-  --radius-control-sm: 6px;
+  --radius-control: 10px;
+  --radius-control-sm: 7px;
+  --radius-card: 20px;
+  --shadow-card:
+    0 1px 2px rgba(23, 22, 31, 0.06), 0 18px 44px -26px rgba(23, 22, 31, 0.26);
 
-  --text-control-lg: 13px;
+  --text-control-lg: 13.5px;
   --text-control: 12.5px;
   --text-control-sm: 11.5px;
   --text-control-xs: 11px;
+}
+
+/* Preview-surface corner radii — fixed per data-radius, never palette-derived. Consumed via
+   var(--r-*) by the preview mocks (src/components/previews/*), not by the app's own chrome. */
+:root {
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+}
+
+[data-radius="sharp"] {
+  --r-xs: 2px;
+  --r-sm: 3px;
+  --r-md: 4px;
+  --r-lg: 6px;
+  --r-xl: 8px;
 }
 
 /* One focus-visible treatment for every control. tab-blue clears 3:1 on the
@@ -60,6 +90,27 @@
   .undo-countdown {
     animation: none;
     display: none;
+  }
+}
+
+/* Loading-state shimmer used by the Components preview surface (skeleton rows, a spinning
+   "Working" button icon) — applied inline via style={{ animation: "preview-shimmer ..." }}
+   since those are token-driven preview mocks, not Tailwind-classed chrome. */
+@keyframes preview-shimmer {
+  0% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="preview-shimmer"] {
+    animation: none !important;
   }
 }
 

@@ -48,7 +48,7 @@ export default function Switch({
     >
       <span
         className={`relative inline-block flex-none rounded-full transition-colors motion-reduce:transition-none ${s.track}`}
-        style={{ backgroundColor: checked ? "var(--color-selected)" : "#dad6e6" }}
+        style={{ backgroundColor: checked ? "var(--color-chip-purple)" : "#dad6e6" }}
       >
         <span
           className={`absolute top-0.5 flex items-center justify-center rounded-full bg-white text-muted transition-[left] motion-reduce:transition-none ${s.knob}`}

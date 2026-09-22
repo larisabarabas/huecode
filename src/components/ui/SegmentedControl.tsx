@@ -14,6 +14,9 @@ interface SegmentedControlProps<T extends string> {
   size?: "sm" | "md";
   /** Let the segments wrap instead of scroll (used by the export formats). */
   wrap?: boolean;
+  /** "tablist" (default) for view-switching groups; "radiogroup" for the header format
+   * chips, which pick a setting rather than switch what's on screen. */
+  role?: "tablist" | "radiogroup";
   className?: string;
 }
 
@@ -35,8 +38,10 @@ export default function SegmentedControl<T extends string>({
   onChange,
   size = "md",
   wrap = false,
+  role = "tablist",
   className = "",
 }: SegmentedControlProps<T>) {
+  const itemRole = role === "radiogroup" ? "radio" : "tab";
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
   function move(to: number) {
@@ -71,7 +76,7 @@ export default function SegmentedControl<T extends string>({
 
   return (
     <div
-      role="tablist"
+      role={role}
       aria-label={label}
       onKeyDown={onKeyDown}
       // `overflow-x-auto` makes this a scroll container, which per spec also computes
@@ -89,12 +94,15 @@ export default function SegmentedControl<T extends string>({
               refs.current[i] = el;
             }}
             type="button"
-            role="tab"
-            aria-selected={selected}
+            role={itemRole}
+            aria-selected={role === "tablist" ? selected : undefined}
+            aria-checked={role === "radiogroup" ? selected : undefined}
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(opt.value)}
-            className={`shrink-0 whitespace-nowrap rounded-control-sm font-semibold transition-colors motion-reduce:transition-none ${SIZES[size]} ${
-              selected ? "bg-selected text-selected-fg" : "text-muted-2 hover:text-ink"
+            className={`shrink-0 whitespace-nowrap rounded-control-sm border font-semibold transition-colors motion-reduce:transition-none ${SIZES[size]} ${
+              selected
+                ? "border-[rgba(23,22,31,0.06)] bg-selected text-selected-fg shadow-selected"
+                : "border-transparent text-muted-2 hover:text-ink"
             }`}
           >
             {opt.label}

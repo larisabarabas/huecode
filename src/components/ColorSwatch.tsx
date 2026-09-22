@@ -3,14 +3,16 @@ import { readableTextColor } from "../lib/color";
 
 interface ColorSwatchProps {
   hex: string;
-  /** Shade step, e.g. "500". */
+  /** Shade step, e.g. "500" — used for the accessible label only (v15 dropped the visible
+   * per-swatch step/hex text; the row header above the strip already shows the base hex,
+   * and the hover title + accessible name still carry the exact value). */
   label?: string;
   /** Role this swatch belongs to, e.g. "primary" — used for the accessible label. */
   name?: string;
   copied: boolean;
   failed?: boolean;
   onCopy: () => void;
-  /** "row" = 52px, step + short hex labels (palette rows). "short" = 38px, no labels (semantic rows). */
+  /** "row" = 40px (core rows). "short" = 34px (semantic rows). Neither shows visible text. */
   size?: "row" | "short";
 }
 
@@ -24,32 +26,25 @@ export default function ColorSwatch({
   size = "row",
 }: ColorSwatchProps) {
   const textColor = readableTextColor(hex);
-  const isRow = size === "row";
   const roleName = name ? name.charAt(0).toUpperCase() + name.slice(1) : "";
-  const ariaLabel = `${[roleName, label].filter(Boolean).join(" ")}, ${hex}. Activate to copy.`;
+  const namedLabel = [roleName, label].filter(Boolean).join(" ");
+  const ariaLabel = `${namedLabel}, ${hex}. Activate to copy.`;
+  // Sighted mouse users only get this tooltip (no visible per-swatch text, see the note
+  // above) — it needs the step/role too, not just the hex, or there's no way to tell which
+  // swatch in the row you're looking at without counting position.
+  const tooltip = namedLabel ? `${namedLabel} — Copy ${hex}` : `Copy ${hex}`;
 
   return (
     <button
       type="button"
       onClick={onCopy}
       aria-label={ariaLabel}
-      className={`group relative flex min-w-0 flex-1 flex-col justify-between overflow-hidden rounded-md text-left transition-transform hover:scale-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-tab-blue focus-visible:ring-offset-2 focus-visible:ring-offset-shell-bg ${
-        isRow ? "h-8.5 p-1.5 lg:h-13" : "h-9.5"
+      className={`group relative flex min-w-0 flex-1 flex-col justify-center overflow-hidden text-left transition-transform hover:scale-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-tab-blue focus-visible:ring-offset-2 focus-visible:ring-offset-shell-bg ${
+        size === "row" ? "h-10" : "h-8.5"
       } ${failed ? "ring-2 ring-red-500" : ""}`}
       style={{ backgroundColor: hex, color: textColor }}
-      title={`Copy ${hex}`}
+      title={tooltip}
     >
-      {isRow && (
-        <>
-          <span aria-hidden="true" className="text-[10px] font-semibold opacity-75">
-            {label}
-          </span>
-          <span aria-hidden="true" className="hidden font-mono text-[9.5px] opacity-90 lg:block">
-            {hex.replace("#", "")}
-          </span>
-        </>
-      )}
-
       {(copied || failed) && (
         <span
           aria-hidden="true"

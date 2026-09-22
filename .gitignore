@@ -6,10 +6,14 @@ dist
 *.log
 *.tsbuildinfo
 DevelopmentPlan.md
+DevelopmentPlan-v15.md
 BACKLOG.md
 src/.DS_Store
 .DS_Store
 .vercel
+
+# Python color-extraction service lives on feature/python-color-service
+python-service/
 
 # Claude Code: keep personal config out, but allow sharing .claude/settings.json,
 # commands, agents and skills if this repo is opened up later.

@@ -1,49 +1,7 @@
-import { contrastRatio } from "./color";
-import { SHADE_STEPS, type ColorRole, type Palette, type ShadeScale, type ShadeStep } from "./types";
+import { clamp, contrastRatio, hexToHsl, readableTextColor } from "./color";
+import type { ColorRole, Palette, ShadeScale, ShadeStep } from "./types";
 
 export type PreviewMode = "light" | "dark";
-
-const ROLE_PREFIX: Record<ColorRole, string> = {
-  primary: "p",
-  secondary: "s",
-  accent: "a",
-  neutral: "n",
-  success: "su",
-  warning: "w",
-  error: "e",
-  info: "i",
-};
-
-/** In dark mode, each ramp is read back-to-front so tints stay tints against a black shell. */
-const MIRROR: Record<ShadeStep, ShadeStep> = {
-  50: 950,
-  100: 900,
-  200: 800,
-  300: 700,
-  400: 600,
-  500: 500,
-  600: 400,
-  700: 300,
-  800: 200,
-  900: 100,
-  950: 50,
-};
-
-/** Fixed dark-mode neutrals — the app shell goes near-black, so the derived-from-palette
- * neutral-50..600 (light backgrounds/borders/muted-text) would be unreadable if mirrored. */
-const DARK_NEUTRAL_OVERRIDES: Record<string, string> = {
-  "--n-50": "#08080a",
-  "--n-100": "#17171a",
-  "--n-200": "#232327",
-  "--n-300": "#3a3a40",
-  "--n-400": "#6e6e78",
-  "--n-500": "#9a94bc",
-  "--n-600": "#c4c0d6",
-};
-
-export function shortHex(hex: string): string {
-  return hex.replace("#", "");
-}
 
 /**
  * Picks the first candidate shade that clears `minRatio` contrast against `bgHex`, falling back
@@ -59,46 +17,117 @@ function pickContrastShade(scale: ShadeScale, bgHex: string, candidates: ShadeSt
   return scale[candidates[candidates.length - 1]];
 }
 
-export function paletteToCssVars(palette: Palette, mode: PreviewMode): Record<string, string> {
-  const dark = mode === "dark";
-  const vars: Record<string, string> = {};
-
-  for (const role of Object.keys(ROLE_PREFIX) as ColorRole[]) {
-    const prefix = ROLE_PREFIX[role];
-    for (const step of SHADE_STEPS) {
-      const sourceStep = dark ? MIRROR[step] : step;
-      vars[`--${prefix}-${step}`] = palette[role][sourceStep];
+/**
+ * Picks whichever candidate shade's actual lightness lands closest to `targetL`. Two themes with
+ * very different base lightness produce very different lightness at a fixed shade step (e.g. a
+ * dark-based green's 600 is far darker than a light-based violet's 600), so the accent role reads
+ * as "thin" in one theme and "solid" in another even though the code drawing it never changes.
+ * Searching nearby steps for a consistent target lightness keeps that visual weight comparable
+ * across themes instead of anchoring to one fixed step.
+ */
+function pickShadeByLightness(scale: ShadeScale, candidates: ShadeStep[], targetL: number): string {
+  let best = scale[candidates[0]];
+  let bestDist = Infinity;
+  for (const step of candidates) {
+    const dist = Math.abs(hexToHsl(scale[step]).l - targetL);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = scale[step];
     }
   }
+  return best;
+}
 
-  // Brand vars read the raw, un-mirrored palette: the marketing hero stays dark in both modes.
-  vars["--brand-deep"] = palette.primary[950];
-  vars["--brand-deep-2"] = palette.primary[900];
-  vars["--brand-deep-3"] = palette.primary[800];
-  vars["--brand-deep-bd"] = palette.primary[700];
-  vars["--brand-fg"] = palette.primary[50];
-  vars["--brand-fg-2"] = palette.primary[200];
-  vars["--brand-fg-3"] = palette.primary[100];
-  vars["--cta-bg"] = palette.accent[500];
-  vars["--cta-fg"] = palette.accent[950];
+/** Appends an 8-digit hex alpha channel — used for the focus `--ring`, which needs to sit as a
+ * translucent halo over whatever the accent color happens to be, not a flat fill. */
+function withAlpha(hex: string, alpha: number): string {
+  const a = Math.round(clamp(alpha, 0, 1) * 255)
+    .toString(16)
+    .padStart(2, "0");
+  return `${hex}${a}`;
+}
 
+const SEMANTIC_ROLES: Record<"ok" | "warn" | "err" | "info", ColorRole> = {
+  ok: "success",
+  warn: "warning",
+  err: "error",
+  info: "info",
+};
+
+/** Fixed per mode, not palette-derived. */
+const SHADOWS: Record<PreviewMode, { sm: string; md: string; lg: string }> = {
+  light: {
+    sm: "0 1px 2px rgba(24,24,27,.06)",
+    md: "0 4px 14px -4px rgba(24,24,27,.12)",
+    lg: "0 24px 48px -16px rgba(24,24,27,.22)",
+  },
+  dark: {
+    sm: "0 1px 2px rgba(0,0,0,.5)",
+    md: "0 4px 14px -4px rgba(0,0,0,.6)",
+    lg: "0 24px 48px -16px rgba(0,0,0,.7)",
+  },
+};
+
+export function paletteToCssVars(palette: Palette, mode: PreviewMode): Record<string, string> {
+  const dark = mode === "dark";
+  const neutral = palette.neutral;
+  const vars: Record<string, string> = {};
+
+  // Structural surfaces. Light mode gets progressively darker as it recedes from the base
+  // card color (surface > surface-2 > bg > surface-3); dark mode gets progressively lighter
+  // as it elevates off the page (bg < surface < surface-2 < surface-3) — the two hierarchies
+  // aren't mirrors of each other, so each is spelled out rather than derived from one rule.
   if (dark) {
-    vars["--bg"] = "#000000";
-    vars["--surface"] = "#0b0b0d";
-    vars["--border"] = "#232327";
-    vars["--text"] = "#fdfffc";
-    vars["--text-muted"] = "#9a94bc";
-    vars["--pricing-surface"] = "#0b0b0d";
-    Object.assign(vars, DARK_NEUTRAL_OVERRIDES);
+    vars["--bg"] = neutral[900];
+    vars["--surface"] = neutral[800];
+    vars["--surface-2"] = neutral[700];
+    vars["--surface-3"] = neutral[600];
+    vars["--border"] = neutral[500];
+    vars["--border-strong"] = neutral[400];
+    vars["--text"] = pickContrastShade(neutral, vars["--bg"], [50, 100], 7);
+    vars["--text-2"] = pickContrastShade(neutral, vars["--bg"], [100, 200, 300], 4.5);
+    vars["--text-3"] = pickContrastShade(neutral, vars["--bg"], [200, 300, 400], 4.5);
   } else {
-    const lightBg = palette.neutral[50];
-    vars["--bg"] = lightBg;
     vars["--surface"] = "#ffffff";
-    vars["--border"] = palette.neutral[200];
-    vars["--text"] = pickContrastShade(palette.neutral, lightBg, [900, 950], 7);
-    vars["--text-muted"] = pickContrastShade(palette.neutral, lightBg, [500, 600, 700, 800, 900, 950], 4.5);
-    vars["--pricing-surface"] = "#ffffff";
+    vars["--bg"] = neutral[100];
+    vars["--surface-2"] = neutral[50];
+    vars["--surface-3"] = neutral[200];
+    vars["--border"] = neutral[300];
+    vars["--border-strong"] = neutral[400];
+    vars["--text"] = pickContrastShade(neutral, vars["--bg"], [900, 950], 7);
+    vars["--text-2"] = pickContrastShade(neutral, vars["--bg"], [600, 700, 800], 4.5);
+    vars["--text-3"] = pickContrastShade(neutral, vars["--bg"], [500, 600, 700], 4.5);
   }
+
+  // Accent. Picked by target lightness rather than a fixed shade step, so themes with a dark
+  // base color (e.g. a muted forest green) don't render a visibly heavier accent than themes
+  // with a light base (e.g. a bright violet) — see pickShadeByLightness above.
+  const accentCandidates: ShadeStep[] = dark ? [300, 400, 500] : [500, 600, 700];
+  const accentTargetL = dark ? 65 : 50;
+  const accent = pickShadeByLightness(palette.primary, accentCandidates, accentTargetL);
+  const accentSoft = dark ? palette.primary[900] : palette.primary[50];
+  vars["--accent"] = accent;
+  vars["--accent-hover"] = pickShadeByLightness(palette.primary, accentCandidates, accentTargetL + (dark ? 12 : -12));
+  vars["--accent-fg"] = readableTextColor(accent);
+  vars["--accent-soft"] = accentSoft;
+  vars["--accent-soft-fg"] = dark
+    ? pickContrastShade(palette.primary, accentSoft, [100, 200, 300], 4.5)
+    : pickContrastShade(palette.primary, accentSoft, [700, 800, 900], 4.5);
+  vars["--ring"] = withAlpha(accent, dark ? 0.34 : 0.3);
+
+  // Semantic roles: base (solid fill), soft (pale tint), fg (readable text on the solid fill).
+  for (const [prefix, role] of Object.entries(SEMANTIC_ROLES) as [string, ColorRole][]) {
+    const scale = palette[role];
+    const base = dark ? scale[400] : scale[600];
+    vars[`--${prefix}`] = base;
+    vars[`--${prefix}-soft`] = dark ? scale[900] : scale[50];
+    vars[`--${prefix}-fg`] = readableTextColor(base);
+  }
+
+  const shadows = SHADOWS[mode];
+  vars["--shadow-sm"] = shadows.sm;
+  vars["--shadow-md"] = shadows.md;
+  vars["--shadow-lg"] = shadows.lg;
 
   return vars;
 }
