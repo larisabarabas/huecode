@@ -1,8 +1,8 @@
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { SHADE_STEPS, type ColorRole, type Palette } from "../lib/types";
 import { useCopyToClipboard } from "../hooks/useCopyToClipboard";
 import ColorSwatch from "./ColorSwatch";
-import Button from "./ui/Button";
 
 const CORE_ROLES: ColorRole[] = ["primary", "secondary", "accent", "neutral"];
 const SEMANTIC_ROLES: ColorRole[] = ["success", "warning", "error", "info"];
@@ -29,10 +29,14 @@ function RoleRow({
   return (
     <div>
       <div className="mb-1.5 flex items-baseline gap-2">
-        <span className="text-xs font-semibold capitalize text-ink">{role}</span>
-        <span className="font-mono text-xs text-muted">{palette[role][500]}</span>
+        <span className="text-[12.5px] font-semibold capitalize text-ink">{role}</span>
+        <span className="font-mono text-[11px] text-muted">{palette[role][500]}</span>
       </div>
-      <div role="group" aria-label={`${role} shade scale`} className="flex gap-0.5">
+      <div
+        role="group"
+        aria-label={`${role} shade scale`}
+        className="flex overflow-hidden rounded-[10px] shadow-[0_1px_2px_rgba(23,22,31,0.08)]"
+      >
         {SHADE_STEPS.map((step) => {
           const hex = palette[role][step];
           const key = `${role}-${step}`;
@@ -59,7 +63,7 @@ export default function PaletteRows({ palette }: PaletteRowsProps) {
   const [semanticsOpen, setSemanticsOpen] = useState(false);
 
   return (
-    <div className="flex flex-col gap-3 px-4.5 pb-4.5 pt-3.5 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+    <div className="flex flex-col gap-4.5">
       <div role="status" aria-live="polite" className="sr-only">
         {copiedValue
           ? `Copied ${copiedValue}`
@@ -79,18 +83,24 @@ export default function PaletteRows({ palette }: PaletteRowsProps) {
         />
       ))}
 
-      <Button
-        variant="secondary"
-        size="sm"
-        className="self-start"
+      <button
+        type="button"
         aria-expanded={semanticsOpen}
+        aria-controls="semantic-colors-body"
         onClick={() => setSemanticsOpen((v) => !v)}
+        className="flex w-full items-center gap-2 border-0 border-b border-line px-0.5 py-2.5 text-left transition-colors hover:bg-panel-inset"
       >
-        {semanticsOpen ? "Hide semantic colors" : "Show semantic colors (success, warning, error, info)"}
-      </Button>
+        <ChevronDown
+          size={14}
+          aria-hidden="true"
+          className={`flex-none text-muted transition-transform motion-reduce:transition-none ${semanticsOpen ? "rotate-180" : ""}`}
+        />
+        <span className="text-[12.5px] font-semibold text-ink">Semantic colors</span>
+        <span className="ml-auto font-mono text-[10.5px] text-muted">success · warning · error · info</span>
+      </button>
 
       {semanticsOpen && (
-        <div className="flex flex-col gap-3">
+        <div id="semantic-colors-body" className="flex flex-col gap-4.5">
           {SEMANTIC_ROLES.map((role) => (
             <RoleRow
               key={role}

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { DEFAULT_THEME, UNDO_WINDOW_MS } from "../hooks/useGeneratorState";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import Button from "./ui/Button";
 
 interface ResetConfirmModalProps {
@@ -12,47 +13,24 @@ interface ResetConfirmModalProps {
 }
 
 export default function ResetConfirmModal({ open, themeLabel, onConfirm, onCancel }: ResetConfirmModalProps) {
+  // Focus Cancel, not the destructive button — a reflexive Enter must be safe.
   const cancelRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
+  useFocusTrap({ active: open, containerRef: dialogRef, initialFocusRef: cancelRef, onClose: onCancel });
+
+  // This IS a true page-blocking modal (unlike CodeDrawer) — inert the rest of the page for
+  // the duration, on top of the shared Tab-trap/Escape/focus-restore behavior above.
   useEffect(() => {
     if (!open) return;
-
-    const opener = document.activeElement as HTMLElement | null;
     const root = document.getElementById("root");
     root?.setAttribute("inert", "");
     root?.setAttribute("aria-hidden", "true");
-
-    // Focus Cancel, not the destructive button — a reflexive Enter must be safe.
-    cancelRef.current?.focus();
-
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        onCancel();
-        return;
-      }
-      if (e.key !== "Tab") return;
-      const focusables = dialogRef.current?.querySelectorAll<HTMLElement>("button");
-      if (!focusables || focusables.length === 0) return;
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-
-    document.addEventListener("keydown", onKeyDown);
     return () => {
-      document.removeEventListener("keydown", onKeyDown);
       root?.removeAttribute("inert");
       root?.removeAttribute("aria-hidden");
-      opener?.focus?.();
     };
-  }, [open, onCancel]);
+  }, [open]);
 
   if (!open) return null;
 
