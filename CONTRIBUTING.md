@@ -58,7 +58,3 @@ For visual changes, check the result in a browser in both light and dark themes.
 ## Reporting security issues
 
 Don't open a public issue. See [SECURITY.md](SECURITY.md).
-
-## Code of conduct
-
-By participating you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
