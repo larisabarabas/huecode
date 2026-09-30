@@ -1,7 +1,17 @@
 {
-  "name": "color-palette-generator",
+  "name": "huecode",
+  "description": "Turn text or an image into an accessible Tailwind color palette, with a live preview and code export.",
   "private": true,
   "version": "1.0.0",
+  "license": "MIT",
+  "author": "Stefania Barabas",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/larisabarabas/huecode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/larisabarabas/huecode/issues"
+  },
   "type": "module",
   "scripts": {
     "predev": "lsof -ti tcp:8787 | xargs kill -9 2>/dev/null || true",
