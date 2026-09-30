@@ -1,0 +1,48 @@
+name: Bug report
+description: Something in Huecode doesn't work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please read the [scope and contribution rules](https://github.com/larisabarabas/huecode/blob/main/CONTRIBUTING.md) first.
+        Don't include API keys or other secrets. For security problems, use private reporting instead (see SECURITY.md).
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the input you used (prompt text, or the kind of image) and the settings you chose.
+      placeholder: |
+        1. Go to ...
+        2. Enter ...
+        3. See ...
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      placeholder: Chrome 130 on macOS
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does it happen?
+      options:
+        - Palette generation
+        - Image input
+        - AI enhancement
+        - Preview surfaces
+        - Export or code output
+        - Other
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or console errors
+      description: Optional, but helpful.

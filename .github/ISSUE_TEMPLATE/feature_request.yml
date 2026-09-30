@@ -1,0 +1,31 @@
+name: Feature request
+description: Suggest an improvement, a new export format or an AI provider
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Huecode uses an issue-first workflow: please describe the idea here and wait for a maintainer to confirm before opening a PR.
+        See the scope section of [CONTRIBUTING.md](https://github.com/larisabarabas/huecode/blob/main/CONTRIBUTING.md).
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the situation, not just the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: arguments
+    attributes:
+      label: Why does it belong in Huecode?
+      description: For a new export format, include a documented approach and solid arguments for including it. For a new AI provider, say which one and how it would fit.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
