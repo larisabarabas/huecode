@@ -13,6 +13,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  branch-name:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          # Bots that name their own branches are allowed through.
+          if [[ "$BRANCH" =~ ^dependabot/ ]]; then exit 0; fi
+          if [[ ! "$BRANCH" =~ ^(feature|fix|test|idea|docs)/[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+            echo "::error::Branch '$BRANCH' does not match the naming rule."
+            echo "Use feature/name, fix/name, test/name, idea/name or docs/name, in lowercase with hyphens."
+            echo "See the 'Branch names' section of CONTRIBUTING.md."
+            exit 1
+          fi
+
   check:
     runs-on: ubuntu-latest
     steps:

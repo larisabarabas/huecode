@@ -55,6 +55,20 @@ For visual changes, check the result in a browser in both light and dark themes.
 - Write commit messages that say what changed and why.
 - Don't include secrets, API keys or personal file paths.
 
+### Branch names
+
+Name your branch `type/short-name`, in lowercase with hyphens:
+
+| Prefix | Use for | Example |
+| --- | --- | --- |
+| `feature/` | New behavior or an improvement | `feature/openai-provider` |
+| `fix/` | A bug fix | `fix/dark-mode-contrast` |
+| `test/` | Adding or improving tests | `test/export-formats` |
+| `idea/` | An experiment or proposal to discuss | `idea/palette-sharing` |
+| `docs/` | Documentation only | `docs/api-key-setup` |
+
+CI checks the branch name on every pull request and fails with a message if it doesn't match.
+
 ## Reporting security issues
 
 Don't open a public issue. See [SECURITY.md](SECURITY.md).

@@ -14,6 +14,7 @@ Closes #
 
 ## Checklist
 
+- [ ] Branch is named `feature/`, `fix/`, `test/`, `idea/` or `docs/` followed by a short lowercase-hyphenated name
 - [ ] `npm run build` passes (type-check and build)
 - [ ] `npm test` passes, with tests added or updated for behavior changes
 - [ ] UI changes checked in light and dark themes, and keyboard focus is visible
