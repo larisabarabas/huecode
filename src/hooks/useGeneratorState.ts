@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { paletteFromThemeText } from "../lib/textToPalette";
-import { ImagePaletteError, paletteFromImage } from "../lib/imageToPalette";
+import { checkPythonServiceAvailability, ImagePaletteError, paletteFromImage } from "../lib/imageToPalette";
 import { AiPaletteError, fetchAiAvailability, paletteFromThemeTextAI } from "../lib/aiPalette";
 import type { Palette, PaletteSource } from "../lib/types";
 
@@ -36,6 +36,8 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
   const [error, setError] = useState<string | null>(null);
   const [aiAvailable, setAiAvailable] = useState(false);
   const [useAi, setUseAi] = useState(false);
+  const [pyServiceAvailable, setPyServiceAvailable] = useState(false);
+  const [usePythonExtraction, setUsePythonExtraction] = useState(false);
   const imageFileRef = useRef<File | null>(null);
   const aiAbortRef = useRef<AbortController | null>(null);
 
@@ -60,6 +62,11 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
 
   useEffect(() => {
     fetchAiAvailability().then(setAiAvailable);
+    // Dev-only comparison toggle — the Python service is never deployed, so
+    // don't even ping for it outside local development.
+    if (import.meta.env.DEV) {
+      checkPythonServiceAvailability().then(setPyServiceAvailable);
+    }
     return () => aiAbortRef.current?.abort();
   }, []);
 
@@ -146,7 +153,7 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     setError(null);
     setIsProcessing(true);
     try {
-      const palette = await paletteFromImage(file);
+      const palette = await paletteFromImage(file, usePythonExtraction ? "python" : "vibrant");
       setVariationIndex(0);
       emit(palette, { kind: "image", label: file.name });
     } catch (err) {
@@ -267,6 +274,9 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     useAi,
     setUseAi,
     aiAvailable,
+    pyServiceAvailable,
+    usePythonExtraction,
+    setUsePythonExtraction,
     imagePreview,
     isProcessing,
     error,
