@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { paletteFromThemeText } from "../lib/textToPalette";
-import { ImagePaletteError, paletteFromImage } from "../lib/imageToPalette";
+import { checkPythonServiceAvailability, ImagePaletteError, paletteFromImage } from "../lib/imageToPalette";
 import { AI_PAUSE_MS, AiPaletteError, fetchAiConfig, paletteFromThemeTextAI, type AiConfig } from "../lib/aiPalette";
 import type { Palette, PaletteSource } from "../lib/types";
 
@@ -40,6 +40,8 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
   const [aiNotice, setAiNotice] = useState<string | null>(null);
   /** Set when a request this session hit "out of budget", so the toggle stays paused even before /api/config catches up. */
   const [budgetHit, setBudgetHit] = useState(false);
+  const [pyServiceAvailable, setPyServiceAvailable] = useState(false);
+  const [usePythonExtraction, setUsePythonExtraction] = useState(false);
   const imageFileRef = useRef<File | null>(null);
   const aiAbortRef = useRef<AbortController | null>(null);
 
@@ -64,6 +66,11 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
 
   useEffect(() => {
     fetchAiConfig().then(setAiConfig);
+    // Dev-only comparison toggle — the Python service is never deployed, so
+    // don't even ping for it outside local development.
+    if (import.meta.env.DEV) {
+      checkPythonServiceAvailability().then(setPyServiceAvailable);
+    }
     return () => aiAbortRef.current?.abort();
   }, []);
 
@@ -183,7 +190,7 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     setError(null);
     setIsProcessing(true);
     try {
-      const palette = await paletteFromImage(file);
+      const palette = await paletteFromImage(file, usePythonExtraction ? "python" : "vibrant");
       setVariationIndex(0);
       emit(palette, { kind: "image", label: file.name });
     } catch (err) {
@@ -307,6 +314,9 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     aiPaused,
     aiAvailable: aiConfig?.available ?? false,
     aiConfig,
+    pyServiceAvailable,
+    usePythonExtraction,
+    setUsePythonExtraction,
     imagePreview,
     isProcessing,
     error,

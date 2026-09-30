@@ -8,6 +8,7 @@ import SwatchStrip from "./SwatchStrip";
 import Button from "./ui/Button";
 import IconButton from "./ui/IconButton";
 import SegmentedControl from "./ui/SegmentedControl";
+import Switch from "./ui/Switch";
 
 const EXAMPLE_THEMES = ["sunset desert", "corporate fintech trustworthy", "cyberpunk neon", "midnight jazz mysterious"];
 
@@ -218,6 +219,18 @@ export default function GeneratorPanel({
                   </p>
                 )}
                 {gen.isProcessing && <p className="text-[11px] text-muted">Extracting colors…</p>}
+              </div>
+            )}
+
+            {gen.inputMode === "image" && gen.pyServiceAvailable && (
+              <div className="flex items-center gap-2.5">
+                <Switch
+                  label="Use Python extraction (dev)"
+                  showLabel
+                  checked={gen.usePythonExtraction}
+                  onChange={gen.setUsePythonExtraction}
+                />
+                <span className="ml-auto font-mono text-[10.5px] text-muted">localhost:8788</span>
               </div>
             )}
           </div>
