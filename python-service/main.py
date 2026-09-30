@@ -9,9 +9,10 @@ Run locally:
 Test:
     curl -F "file=@/path/to/image.jpg" http://localhost:8788/extract
 
-Not wired into the app's dev server or Express proxy yet — this is a
-standalone service the frontend/backend can be pointed at once the
-extraction quality is validated.
+Not wired into the Express proxy or deployed anywhere — the frontend
+(src/lib/imageToPalette.ts) fetches this service directly at
+http://localhost:8788 behind a dev-only "Use Python extraction" toggle,
+shown in the Image tab only when this service responds to /health.
 """
 
 from __future__ import annotations
