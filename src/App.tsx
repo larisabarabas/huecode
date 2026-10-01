@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import AppHeader from "./components/AppHeader";
 import CodeDrawer from "./components/CodeDrawer";
 import PreviewPane, { type PreviewTab } from "./components/PreviewPane";
@@ -166,6 +167,7 @@ export default function App() {
         onUndo={gen.undoReset}
         onDismiss={gen.dismissUndo}
       />
+      <Analytics />
     </div>
   );
 }
