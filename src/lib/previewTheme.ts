@@ -82,18 +82,18 @@ export function paletteToCssVars(palette: Palette, mode: PreviewMode): Record<st
     vars["--surface"] = neutral[800];
     vars["--surface-2"] = neutral[700];
     vars["--surface-3"] = neutral[600];
-    vars["--border"] = neutral[500];
-    vars["--border-strong"] = neutral[400];
+    vars["--border"] = neutral[600];
+    vars["--border-strong"] = neutral[500];
     vars["--text"] = pickContrastShade(neutral, vars["--bg"], [50, 100], 7);
     vars["--text-2"] = pickContrastShade(neutral, vars["--bg"], [100, 200, 300], 4.5);
     vars["--text-3"] = pickContrastShade(neutral, vars["--bg"], [200, 300, 400], 4.5);
   } else {
     vars["--surface"] = "#ffffff";
-    vars["--bg"] = neutral[100];
+    vars["--bg"] = neutral[50];
     vars["--surface-2"] = neutral[50];
     vars["--surface-3"] = neutral[200];
-    vars["--border"] = neutral[300];
-    vars["--border-strong"] = neutral[400];
+    vars["--border"] = neutral[200];
+    vars["--border-strong"] = neutral[300];
     vars["--text"] = pickContrastShade(neutral, vars["--bg"], [900, 950], 7);
     vars["--text-2"] = pickContrastShade(neutral, vars["--bg"], [600, 700, 800], 4.5);
     vars["--text-3"] = pickContrastShade(neutral, vars["--bg"], [500, 600, 700], 4.5);
