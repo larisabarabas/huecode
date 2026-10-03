@@ -6,15 +6,45 @@ import Switch from "./ui/Switch";
 interface AiToggleProps {
   checked: boolean;
   onChange: (next: boolean) => void;
+  /** Hosted demo: pass DEMO_NOTE_ID's note alongside so the switch announces the cap. */
+  demo?: boolean;
+  /** Provider is out of credit/quota: switch is disabled and described by the paused note. */
+  paused?: boolean;
 }
 
 const TOOLTIP_ID = "ai-toggle-tip";
+export const DEMO_NOTE_ID = "ai-demo-note";
+export const PAUSED_NOTE_ID = "ai-paused-note";
+
+/**
+ * Hosted demo only: the AI runs on a shared key with a monthly spend cap, and users
+ * are told up front. Rendered by the caller below the toggle row (not inside it) so
+ * it can wrap full-width without distorting the row's alignment.
+ */
+export function AiDemoNote() {
+  return (
+    <p id={DEMO_NOTE_ID} className="text-[11px] leading-snug text-muted-2">
+      Demo AI uses a shared key with a monthly cap. If it runs out, the standard generator still works.
+    </p>
+  );
+}
+
+/** Persistent state line shown while AI is paused; replaces the demo caption. */
+export function AiPausedNote({ demo }: { demo: boolean }) {
+  return (
+    <p id={PAUSED_NOTE_ID} className="text-[11px] leading-snug text-muted-2">
+      {demo
+        ? "AI is paused: the demo's shared budget is used up for this month. The standard generator still works."
+        : "AI is paused: the provider reports no credit or quota left. The standard generator still works."}
+    </p>
+  );
+}
 
 /**
  * "Enhance with AI" switch. On: the model proposes all 8 color roles for the
  * theme. Off: roles come from the built-in keyword dictionary.
  */
-export default function AiToggle({ checked, onChange }: AiToggleProps) {
+export default function AiToggle({ checked, onChange, demo = false, paused = false }: AiToggleProps) {
   const [tipOpen, setTipOpen] = useState(false);
 
   return (
@@ -22,8 +52,14 @@ export default function AiToggle({ checked, onChange }: AiToggleProps) {
       className="relative flex items-center gap-2 text-xs text-muted-2"
       onMouseLeave={() => setTipOpen(false)}
     >
-      <Switch label="Enhance with AI" showLabel checked={checked} onChange={onChange} />
-
+      <Switch
+        label="Enhance with AI"
+        showLabel
+        checked={checked}
+        onChange={onChange}
+        disabled={paused}
+        describedBy={paused ? PAUSED_NOTE_ID : demo ? DEMO_NOTE_ID : undefined}
+      />
 
       <IconButton
         label="What does Enhance with AI do?"

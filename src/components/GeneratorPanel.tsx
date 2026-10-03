@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type DragEvent } from "react";
 import { ChevronDown, ChevronLeft, RotateCcw, Sparkles, X } from "lucide-react";
 import type { useGeneratorState } from "../hooks/useGeneratorState";
 import type { Palette, PaletteSource } from "../lib/types";
-import AiToggle from "./AiToggle";
+import AiToggle, { AiDemoNote, AiPausedNote } from "./AiToggle";
 import PaletteRows from "./PaletteRows";
 import SwatchStrip from "./SwatchStrip";
 import Button from "./ui/Button";
@@ -155,9 +155,21 @@ export default function GeneratorPanel({
                   </div>
                 )}
                 {gen.aiAvailable && (
-                  <div className="flex items-center gap-2.5">
-                    <AiToggle checked={gen.useAi} onChange={gen.setUseAi} />
-                    <span className="ml-auto font-mono text-[10.5px] text-muted">8 roles · 11 steps</span>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center gap-2.5">
+                      <AiToggle
+                        checked={gen.useAi}
+                        onChange={gen.setUseAi}
+                        demo={gen.aiConfig?.demo}
+                        paused={gen.aiPaused}
+                      />
+                      <span className="ml-auto font-mono text-[10.5px] text-muted">8 roles · 11 steps</span>
+                    </div>
+                    {gen.aiPaused ? (
+                      <AiPausedNote demo={Boolean(gen.aiConfig?.demo)} />
+                    ) : (
+                      gen.aiConfig?.demo && <AiDemoNote />
+                    )}
                   </div>
                 )}
               </div>
@@ -216,7 +228,17 @@ export default function GeneratorPanel({
           {gen.variationIndex > 0 && gen.inputMode === "text" && !source.proposedColors && (
             <p className="text-[11px] text-muted-2">Variation {gen.variationIndex}</p>
           )}
-          {gen.error && <p className="text-xs text-red-600">{gen.error}</p>}
+          {/* Always mounted so screen readers announce the text when it appears. */}
+          <div role="alert" className="empty:hidden">
+            {gen.error && <p className="text-xs text-red-600">{gen.error}</p>}
+          </div>
+          <div role="status" className="empty:hidden">
+            {gen.aiNotice && (
+              <p className="rounded-md bg-chrome px-2.5 py-2 text-[11.5px] leading-relaxed text-muted-2">
+                {gen.aiNotice}
+              </p>
+            )}
+          </div>
 
           <div className="flex gap-2">
             <Button

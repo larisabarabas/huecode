@@ -25,7 +25,7 @@ Include what you found, how to reproduce it, and the impact you expect.
 
 In scope:
 - The Huecode app and its API (`server/`, `api/`).
-- Handling of the `ANTHROPIC_API_KEY`, which must stay server-side.
+- Handling of the AI provider keys (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`), which must stay server-side.
 - The GitHub Actions workflows in this repository.
 
 Out of scope:
