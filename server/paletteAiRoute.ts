@@ -1,7 +1,19 @@
-import { isAiConfigured } from "./env.js";
-import { proposePaletteFromTheme } from "./anthropicPalette.js";
+import { aiConfig, isAiConfigured, proposePaletteFromTheme, ProviderError } from "./ai/index.js";
+import { isBudgetExhausted, markBudgetExhausted } from "./ai/budget.js";
 
 export const MAX_THEME_LENGTH = 200;
+
+function budgetExhaustedResult(): RouteResult {
+  return {
+    status: 503,
+    body: {
+      code: "budget_exhausted",
+      error: aiConfig?.demo
+        ? "The demo's shared AI budget is used up for this month. The standard generator still works, and you can self-host with your own key."
+        : "The AI provider reports the account is out of credit or quota. Generating without AI still works.",
+    },
+  };
+}
 
 export interface RouteResult {
   status: number;
@@ -27,11 +39,20 @@ export async function handlePaletteAiRequest(theme: unknown): Promise<RouteResul
     return { status: 503, body: { error: "AI is not configured on this server." } };
   }
 
+  // Known to be out of budget: skip the provider call, it would only fail.
+  if (isBudgetExhausted()) return budgetExhaustedResult();
+
   try {
     const result = await proposePaletteFromTheme(theme.trim());
     return { status: 200, body: result };
   } catch (err) {
     console.error("AI palette generation failed:", err);
+
+    if (err instanceof ProviderError && err.budgetExhausted) {
+      markBudgetExhausted();
+      return budgetExhaustedResult();
+    }
+
     return { status: 502, body: { error: "AI palette generation failed. Try again, or generate without AI." } };
   }
 }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { paletteFromThemeText } from "../lib/textToPalette";
 import { ImagePaletteError, paletteFromImage } from "../lib/imageToPalette";
-import { AiPaletteError, fetchAiAvailability, paletteFromThemeTextAI } from "../lib/aiPalette";
+import { AI_PAUSE_MS, AiPaletteError, fetchAiConfig, paletteFromThemeTextAI, type AiConfig } from "../lib/aiPalette";
 import type { Palette, PaletteSource } from "../lib/types";
 
 export const DEFAULT_THEME = "sage botanical minimal";
@@ -34,8 +34,12 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [aiAvailable, setAiAvailable] = useState(false);
-  const [useAi, setUseAi] = useState(false);
+  const [aiConfig, setAiConfig] = useState<AiConfig | null>(null);
+  const [useAi, setUseAiState] = useState(false);
+  /** Neutral (non-error) message, e.g. the demo budget ran out and AI was switched off. */
+  const [aiNotice, setAiNotice] = useState<string | null>(null);
+  /** Set when a request this session hit "out of budget", so the toggle stays paused even before /api/config catches up. */
+  const [budgetHit, setBudgetHit] = useState(false);
   const imageFileRef = useRef<File | null>(null);
   const aiAbortRef = useRef<AbortController | null>(null);
 
@@ -59,9 +63,26 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
   }
 
   useEffect(() => {
-    fetchAiAvailability().then(setAiAvailable);
+    fetchAiConfig().then(setAiConfig);
     return () => aiAbortRef.current?.abort();
   }, []);
+
+  // A hit budget unpauses itself after the same window the server uses, so one false alarm
+  // (or a top-up) doesn't leave this tab stuck until reload.
+  useEffect(() => {
+    if (!budgetHit) return;
+    const timer = window.setTimeout(() => setBudgetHit(false), AI_PAUSE_MS);
+    return () => window.clearTimeout(timer);
+  }, [budgetHit]);
+
+  /** Paused = the server says the provider is out of budget, or we just hit it ourselves. */
+  const aiPaused = Boolean(aiConfig?.paused) || budgetHit;
+
+  function setUseAi(next: boolean) {
+    if (next && aiPaused) return;
+    setUseAiState(next);
+    if (next) setAiNotice(null);
+  }
 
   /** Push a freshly generated palette and cancel any pending Reset-undo. */
   function emit(palette: Palette, source: PaletteSource) {
@@ -92,6 +113,7 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     aiAbortRef.current = controller;
 
     setError(null);
+    setAiNotice(null);
     setIsProcessing(true);
     try {
       const { palette, proposedColors, rationale } = await paletteFromThemeTextAI(trimmed, controller.signal);
@@ -106,7 +128,15 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     } catch (err) {
       // A superseded / cancelled request must not overwrite the UI for the live one.
       if (aiAbortRef.current !== controller) return;
-      setError(err instanceof AiPaletteError ? err.message : "AI generation failed. Try again.");
+      if (err instanceof AiPaletteError && err.code === "budget_exhausted") {
+        // Out of budget isn't the user's mistake: show a neutral notice and switch AI off so the
+        // next Generate uses the built-in generator instead of failing again.
+        setUseAiState(false);
+        setBudgetHit(true);
+        setAiNotice(`${err.message} AI is switched off for now.`);
+      } else {
+        setError(err instanceof AiPaletteError ? err.message : "AI generation failed. Try again.");
+      }
     } finally {
       if (aiAbortRef.current === controller) {
         aiAbortRef.current = null;
@@ -266,7 +296,10 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     shuffle,
     useAi,
     setUseAi,
-    aiAvailable,
+    aiNotice,
+    aiPaused,
+    aiAvailable: aiConfig?.available ?? false,
+    aiConfig,
     imagePreview,
     isProcessing,
     error,

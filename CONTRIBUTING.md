@@ -10,7 +10,7 @@ Thanks for your interest in Huecode. This guide covers how to propose a change, 
 - Bug fixes, accessibility improvements, documentation and tests.
 - Improvements to palette generation, the previews and the export output.
 - New export formats, with a PR that includes a documented solution and solid arguments for why the format belongs in Huecode.
-- New AI providers. Anthropic is the only one supported today, and more are planned.
+- New AI providers. Anthropic, OpenAI and Gemini are supported today. A new provider is one adapter in `server/ai/`, so open an issue first to agree on which one.
 
 ### What's out of scope
 Nothing is ruled out yet. The issue-first rule below is how scope is decided.
@@ -33,7 +33,7 @@ cp .env.example .env   # optional, only needed for AI enhancement
 npm run dev            # web on Vite, API on port 8787
 ```
 
-Everything except AI enhancement works without a key. To try the AI path, add your own `ANTHROPIC_API_KEY` to `.env`. The key is only read on the server (`server/env.ts`) and never sent to the browser. Never commit `.env` or paste a key into an issue or PR.
+Everything except AI enhancement works without a key. To try the AI path, add a key for one provider (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY` or `GEMINI_API_KEY`) to `.env`, and set `AI_PROVIDER` if you add more than one. Keys are only read on the server (`server/ai/config.ts`) and never sent to the browser. Never commit `.env` or paste a key into an issue or PR.
 
 ## Checks
 
