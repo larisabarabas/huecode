@@ -33,8 +33,35 @@ describe("openai adapter", () => {
     expect(url).toBe("https://api.openai.com/v1/chat/completions");
     expect((init.headers as Record<string, string>).Authorization).toBe("Bearer sk-test");
     expect(sent.model).toBe("model-x");
+    expect(sent.reasoning_effort).toBe("none");
     expect(sent.tool_choice).toEqual({ type: "function", function: { name: "propose_palette" } });
     expect(sent.messages.at(-1)).toEqual({ role: "user", content: "forest" });
+  });
+
+  it("retries without reasoning_effort when the model doesn't support it", async () => {
+    const ok = { choices: [{ message: { tool_calls: [{ function: { arguments: JSON.stringify(PALETTE) } }] } }] };
+    const fn = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        text: async () => '{"error":{"message":"Unsupported parameter: reasoning_effort","param":"reasoning_effort"}}',
+      })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ok });
+    vi.stubGlobal("fetch", fn);
+
+    expect(await provider.propose("forest")).toEqual(PALETTE);
+
+    expect(fn).toHaveBeenCalledTimes(2);
+    const bodies = fn.mock.calls.map(([, init]) => JSON.parse((init as RequestInit).body as string));
+    expect(bodies[0].reasoning_effort).toBe("none");
+    expect(bodies[1]).not.toHaveProperty("reasoning_effort");
+  });
+
+  it("does not retry on unrelated errors", async () => {
+    const fn = mockFetch(400, "bad request");
+    await expect(provider.propose("x")).rejects.toThrow(/\(400\)/);
+    expect(fn).toHaveBeenCalledTimes(1);
   });
 
   it("rejects a response with no tool call", async () => {
