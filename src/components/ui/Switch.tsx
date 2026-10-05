@@ -9,6 +9,10 @@ interface SwitchProps {
   label: string;
   showLabel?: boolean;
   size?: Size;
+  /** id of an element that describes this switch (read after the name and state). */
+  describedBy?: string;
+  /** Unavailable: stays focusable and announced as disabled, but ignores clicks. */
+  disabled?: boolean;
   /** Optional glyphs rendered inside the sliding knob (e.g. sun / moon). */
   knobIconOn?: ReactNode;
   knobIconOff?: ReactNode;
@@ -30,6 +34,8 @@ export default function Switch({
   label,
   showLabel = false,
   size = "sm",
+  describedBy,
+  disabled = false,
   knobIconOn,
   knobIconOff,
   className = "",
@@ -43,8 +49,14 @@ export default function Switch({
       role="switch"
       aria-checked={checked}
       aria-label={showLabel ? undefined : label}
-      onClick={() => onChange(!checked)}
-      className={`inline-flex items-center gap-2 text-xs font-medium text-muted-2 ${className}`.trim()}
+      aria-describedby={describedBy}
+      aria-disabled={disabled || undefined}
+      onClick={() => {
+        if (!disabled) onChange(!checked);
+      }}
+      className={`inline-flex items-center gap-2 text-xs font-medium text-muted-2 ${
+        disabled ? "cursor-not-allowed opacity-60" : ""
+      } ${className}`.trim()}
     >
       <span
         className={`relative inline-block flex-none rounded-full transition-colors motion-reduce:transition-none ${s.track}`}

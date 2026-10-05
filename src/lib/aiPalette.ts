@@ -4,17 +4,23 @@ import { COLOR_ROLES, type ColorRole, type HSL, type Palette } from "./types";
 /** Abort the AI request if the server hasn't answered in this long. */
 export const AI_TIMEOUT_MS = 20_000;
 
+/** How long the client keeps AI paused after hitting "out of budget"; mirrors BUDGET_COOLDOWN_MS on the server. */
+export const AI_PAUSE_MS = 30 * 60 * 1000;
+
 export class AiPaletteError extends Error {
   /** HTTP status when the failure came from a server response, else undefined. */
   readonly status?: number;
   /** True for transient conditions the user can just retry (timeout, 429, 5xx, network). */
   readonly retryable: boolean;
+  /** Machine-readable reason from the server, e.g. "budget_exhausted" when the provider is out of credit. */
+  readonly code?: string;
 
-  constructor(message: string, opts: { status?: number; retryable?: boolean } = {}) {
+  constructor(message: string, opts: { status?: number; retryable?: boolean; code?: string } = {}) {
     super(message);
     this.name = "AiPaletteError";
     this.status = opts.status;
     this.retryable = opts.retryable ?? true;
+    this.code = opts.code;
   }
 }
 
@@ -31,13 +37,30 @@ function isHsl(value: unknown): value is HSL {
   return typeof v.h === "number" && typeof v.s === "number" && typeof v.l === "number";
 }
 
-export async function fetchAiAvailability(retries = 2): Promise<boolean> {
+export interface AiConfig {
+  available: boolean;
+  /** Provider id ("anthropic" | "openai" | "gemini"); null when AI is off. */
+  provider: string | null;
+  /** True on the hosted demo, where the shared key has a spend cap. */
+  demo: boolean;
+  /** True when the server knows the provider is out of credit/quota, so AI should be offered as paused. */
+  paused: boolean;
+}
+
+const AI_OFF: AiConfig = { available: false, provider: null, demo: false, paused: false };
+
+export async function fetchAiConfig(retries = 2): Promise<AiConfig> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       const res = await fetch("/api/config");
       if (res.ok) {
         const data = await res.json();
-        return Boolean(data.aiAvailable);
+        return {
+          available: Boolean(data.aiAvailable),
+          provider: typeof data.provider === "string" ? data.provider : null,
+          demo: Boolean(data.demo),
+          paused: Boolean(data.paused),
+        };
       }
     } catch {
       // fall through to retry / give up
@@ -46,7 +69,7 @@ export async function fetchAiAvailability(retries = 2): Promise<boolean> {
       await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
     }
   }
-  return false;
+  return AI_OFF;
 }
 
 export async function paletteFromThemeTextAI(theme: string, signal?: AbortSignal): Promise<AiPaletteResult> {
@@ -67,7 +90,8 @@ export async function paletteFromThemeTextAI(theme: string, signal?: AbortSignal
       const body = await res.json().catch(() => null);
       throw new AiPaletteError(body?.error ?? `AI request failed (${res.status}).`, {
         status: res.status,
-        retryable: res.status === 429 || res.status >= 500,
+        retryable: (res.status === 429 || res.status >= 500) && body?.code !== "budget_exhausted",
+        code: typeof body?.code === "string" ? body.code : undefined,
       });
     }
 
