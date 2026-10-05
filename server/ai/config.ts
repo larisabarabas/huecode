@@ -22,6 +22,11 @@ const KEY_VARS: Record<AiProviderId, string> = {
 
 type Env = Record<string, string | undefined>;
 
+/** Env value trimmed; blank counts as unset (a pasted key often carries a trailing newline or stray spaces). */
+function read(env: Env, name: string): string | undefined {
+  return env[name]?.trim() || undefined;
+}
+
 function isProviderId(value: string): value is AiProviderId {
   return (AI_PROVIDER_IDS as readonly string[]).includes(value);
 }
@@ -32,8 +37,8 @@ function isProviderId(value: string): value is AiProviderId {
  * ambiguous (several keys, no AI_PROVIDER), with a warning explaining why.
  */
 export function resolveAiConfig(env: Env, warn: (msg: string) => void = () => {}): AiConfig | null {
-  const keys = AI_PROVIDER_IDS.filter((id) => Boolean(env[KEY_VARS[id]]));
-  const requested = env.AI_PROVIDER?.trim().toLowerCase();
+  const keys = AI_PROVIDER_IDS.filter((id) => Boolean(read(env, KEY_VARS[id])));
+  const requested = read(env, "AI_PROVIDER")?.toLowerCase();
 
   let provider: AiProviderId;
   if (requested) {
@@ -51,7 +56,7 @@ export function resolveAiConfig(env: Env, warn: (msg: string) => void = () => {}
     return null;
   }
 
-  const apiKey = env[KEY_VARS[provider]];
+  const apiKey = read(env, KEY_VARS[provider]);
   if (!apiKey) {
     warn(`AI_PROVIDER=${provider} but ${KEY_VARS[provider]} is not set. AI is disabled.`);
     return null;
@@ -59,9 +64,9 @@ export function resolveAiConfig(env: Env, warn: (msg: string) => void = () => {}
 
   // ANTHROPIC_MODEL predates AI_MODEL; keep honoring it so existing .env files still work.
   const model =
-    env.AI_MODEL?.trim() ||
-    (provider === "anthropic" ? env.ANTHROPIC_MODEL?.trim() : undefined) ||
+    read(env, "AI_MODEL") ||
+    (provider === "anthropic" ? read(env, "ANTHROPIC_MODEL") : undefined) ||
     DEFAULT_MODELS[provider];
 
-  return { provider, apiKey, model, demo: env.AI_DEMO_MODE === "true" };
+  return { provider, apiKey, model, demo: read(env, "AI_DEMO_MODE")?.toLowerCase() === "true" };
 }

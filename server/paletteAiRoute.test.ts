@@ -12,7 +12,7 @@ vi.mock("./ai/index.js", async () => {
   };
 });
 
-const { handlePaletteAiRequest } = await import("./paletteAiRoute.js");
+const { handlePaletteAiRequest, MAX_THEME_LENGTH } = await import("./paletteAiRoute.js");
 const { ProviderError } = await import("./ai/types.js");
 const { isBudgetExhausted, resetBudgetState } = await import("./ai/budget.js");
 
@@ -44,8 +44,24 @@ describe("handlePaletteAiRequest budget handling", () => {
     expect(isBudgetExhausted()).toBe(false);
   });
 
-  it("rejects an invalid theme before touching the provider", async () => {
-    expect((await handlePaletteAiRequest("")).status).toBe(400);
+  it.each([[[]], [{}], [42], [null], [undefined], ["   "]])("rejects non-string or blank theme %j", async (theme) => {
+    expect((await handlePaletteAiRequest(theme)).status).toBe(400);
     expect(propose).not.toHaveBeenCalled();
   });
+
+  it("measures the limit on the trimmed theme and sends it trimmed", async () => {
+    propose.mockResolvedValue({ colors: {}, rationale: "" });
+    const padded = `  ${"a".repeat(MAX_THEME_LENGTH)}  `;
+    expect((await handlePaletteAiRequest(padded)).status).toBe(200);
+    expect(propose).toHaveBeenCalledWith("a".repeat(MAX_THEME_LENGTH));
+    expect((await handlePaletteAiRequest("a".repeat(MAX_THEME_LENGTH + 1))).status).toBe(400);
+  });
+
+  it("never leaks provider error text in the 502 body", async () => {
+    propose.mockRejectedValueOnce(new ProviderError("Incorrect API key provided: sk-abc***xyz"));
+    const res = await handlePaletteAiRequest("x");
+    expect(res.status).toBe(502);
+    expect(JSON.stringify(res.body)).not.toContain("sk-");
+  });
+
 });

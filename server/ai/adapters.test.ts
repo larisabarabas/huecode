@@ -126,3 +126,22 @@ describe("gemini adapter", () => {
     expect(err.budgetExhausted).toBe(false);
   });
 });
+
+describe("adapter edge cases", () => {
+  it("gemini: the model name cannot alter the request path", async () => {
+    const fetchMock = mockFetch(200, { candidates: [{ content: { parts: [{ functionCall: { args: PALETTE } }] } }] });
+    await createGeminiProvider("k", "../../evil?x=1").propose("x");
+    const [url] = fetchMock.mock.calls[0] as unknown as [string];
+    expect(url).not.toContain("evil?x");
+    expect(url).toContain(encodeURIComponent("../../evil?x=1"));
+  });
+
+  it("a 500 mentioning quota is a plain failure, and the key never appears in the message", async () => {
+    mockFetch(500, "insufficient_quota");
+    const err = await createOpenAiProvider("sk-SECRET", "m").propose("x").catch((e) => e);
+    expect(err).toBeInstanceOf(ProviderError);
+    expect(err.budgetExhausted).toBe(false);
+    expect(err.message).not.toContain("sk-SECRET");
+  });
+
+});

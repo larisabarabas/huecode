@@ -1,6 +1,6 @@
 import { SEMANTIC_ANCHORS } from "../../src/lib/paletteBuilder.js";
 import { COLOR_ROLES, type ColorRole, type HSL } from "../../src/lib/types.js";
-import type { RawPalette } from "./types.js";
+import { ProviderError, type RawPalette } from "./types.js";
 
 export const TOOL_NAME = "propose_palette";
 export const TOOL_DESCRIPTION =
@@ -62,28 +62,40 @@ const ROLE_FALLBACKS: Record<ColorRole, HSL> = {
   ...SEMANTIC_ANCHORS,
 };
 
+function finiteOr(value: unknown, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
 function clampNumber(value: unknown, min: number, max: number, fallback: number): number {
-  const n = typeof value === "number" && Number.isFinite(value) ? value : fallback;
-  return Math.min(max, Math.max(min, n));
+  return Math.min(max, Math.max(min, finiteOr(value, fallback)));
+}
+
+/** Hue is circular: -10 means 350, 720 means 0 — clamping would silently turn them into red. */
+function wrapHue(value: unknown, fallback: number): number {
+  return ((finiteOr(value, fallback) % 360) + 360) % 360;
 }
 
 /** Never trust model output as-is: clamp every field into its valid range before it touches the palette. */
 export function sanitizeHsl(value: unknown, fallback: HSL): HSL {
   const v = (value ?? {}) as Partial<Record<keyof HSL, unknown>>;
   return {
-    h: clampNumber(v.h, 0, 360, fallback.h),
+    h: wrapHue(v.h, fallback.h),
     s: clampNumber(v.s, 0, 100, fallback.s),
     l: clampNumber(v.l, 0, 100, fallback.l),
   };
 }
 
 export function toPaletteResult(input: RawPalette): AiPaletteResult {
+  // JSON.parse("null"), arrays and bare strings are all valid JSON but not a palette.
+  if (typeof input !== "object" || input === null || Array.isArray(input)) {
+    throw new ProviderError("AI response was not a palette object.");
+  }
   const colors = Object.fromEntries(
     COLOR_ROLES.map((role) => [role, sanitizeHsl(input[role], ROLE_FALLBACKS[role])]),
   ) as Record<ColorRole, HSL>;
 
   return {
     colors,
-    rationale: typeof input.rationale === "string" ? input.rationale.slice(0, 240) : "",
+    rationale: typeof input.rationale === "string" ? input.rationale.slice(0, 240).replace(/[\ud800-\udbff]$/, "") : "",
   };
 }

@@ -11,8 +11,14 @@ const BUDGET_PATTERN =
  */
 const RATE_LIMIT_HINT = /per[ -]?(minute|second)|retry(delay| in| after)|rate[ -]?limit|too many requests/i;
 
+/** A per-day quota won't clear by waiting a minute, so a "retry in Ns" hint next to it must not veto the match. */
+const DAILY_QUOTA_HINT = /per[ -]?day|daily/i;
+const PER_MINUTE_HINT = /per[ -]?(minute|second)/i;
+
 export function looksLikeBudgetExhausted(text: string): boolean {
-  return BUDGET_PATTERN.test(text) && !RATE_LIMIT_HINT.test(text);
+  if (!BUDGET_PATTERN.test(text)) return false;
+  if (DAILY_QUOTA_HINT.test(text) && !PER_MINUTE_HINT.test(text)) return true;
+  return !RATE_LIMIT_HINT.test(text);
 }
 
 /** HTTP statuses providers use for "out of budget" (400 Anthropic credit, 402 payment, 403 spend cap, 429 quota). */

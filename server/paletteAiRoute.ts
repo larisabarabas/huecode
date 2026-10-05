@@ -28,7 +28,8 @@ export interface RouteResult {
  * (Express middleware vs. a manual check) in each caller.
  */
 export async function handlePaletteAiRequest(theme: unknown): Promise<RouteResult> {
-  if (typeof theme !== "string" || !theme.trim() || theme.length > MAX_THEME_LENGTH) {
+  const trimmed = typeof theme === "string" ? theme.trim() : "";
+  if (!trimmed || trimmed.length > MAX_THEME_LENGTH) {
     return {
       status: 400,
       body: { error: `theme must be a non-empty string under ${MAX_THEME_LENGTH} characters.` },
@@ -43,7 +44,7 @@ export async function handlePaletteAiRequest(theme: unknown): Promise<RouteResul
   if (isBudgetExhausted()) return budgetExhaustedResult();
 
   try {
-    const result = await proposePaletteFromTheme(theme.trim());
+    const result = await proposePaletteFromTheme(trimmed);
     return { status: 200, body: result };
   } catch (err) {
     console.error("AI palette generation failed:", err);

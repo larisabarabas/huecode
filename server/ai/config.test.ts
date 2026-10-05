@@ -45,4 +45,21 @@ describe("resolveAiConfig", () => {
     expect(cfg?.model).toBe("gemini-x");
     expect(cfg?.demo).toBe(true);
   });
+
+  it("trims keys, so a pasted trailing newline never reaches the Authorization header", () => {
+    expect(resolveAiConfig({ OPENAI_API_KEY: " sk-x\n" })?.apiKey).toBe("sk-x");
+  });
+
+  it("a blank key does not make the setup ambiguous", () => {
+    expect(resolveAiConfig({ OPENAI_API_KEY: "k", GEMINI_API_KEY: "  " })?.provider).toBe("openai");
+  });
+
+  it("reads AI_DEMO_MODE case- and space-insensitively", () => {
+    expect(resolveAiConfig({ OPENAI_API_KEY: "k", AI_DEMO_MODE: " TRUE " })?.demo).toBe(true);
+    expect(resolveAiConfig({ OPENAI_API_KEY: "k", AI_DEMO_MODE: "yes" })?.demo).toBe(false);
+  });
+
+  it("does not leak ANTHROPIC_MODEL into other providers", () => {
+    expect(resolveAiConfig({ OPENAI_API_KEY: "k", ANTHROPIC_MODEL: "claude-x" })?.model).toBe(DEFAULT_MODELS.openai);
+  });
 });
