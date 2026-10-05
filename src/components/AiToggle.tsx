@@ -6,25 +6,41 @@ import Switch from "./ui/Switch";
 interface AiToggleProps {
   checked: boolean;
   onChange: (next: boolean) => void;
-  /** Hosted demo: pass DEMO_NOTE_ID's note alongside so the switch announces the cap. */
-  demo?: boolean;
+  /** True when an AiNote (provider and/or demo caption) is rendered alongside, so the switch announces it. */
+  hasNote?: boolean;
   /** Provider is out of credit/quota: switch is disabled and described by the paused note. */
   paused?: boolean;
 }
 
 const TOOLTIP_ID = "ai-toggle-tip";
-export const DEMO_NOTE_ID = "ai-demo-note";
+export const NOTE_ID = "ai-note";
 export const PAUSED_NOTE_ID = "ai-paused-note";
 
+/** Display names for the provider ids the server reports; an unknown id is simply not named. */
+const PROVIDER_LABELS: Record<string, string> = {
+  anthropic: "Anthropic",
+  openai: "OpenAI",
+  gemini: "Google Gemini",
+};
+
+/** Whether AiNote has anything to say; the toggle only references the note's id when it does. */
+export function hasAiNote(provider: string | null, demo: boolean): boolean {
+  return demo || Boolean(provider && PROVIDER_LABELS[provider]);
+}
+
 /**
- * Hosted demo only: the AI runs on a shared key with a monthly spend cap, and users
- * are told up front. Rendered by the caller below the toggle row (not inside it) so
- * it can wrap full-width without distorting the row's alignment.
+ * Caption below the toggle: names the provider that receives the theme text and, on the
+ * hosted demo, says the AI runs on a shared key with a monthly spend cap. Rendered by the
+ * caller below the toggle row (not inside it) so it can wrap full-width without distorting
+ * the row's alignment. Renders nothing when there is neither a known provider nor a demo notice.
  */
-export function AiDemoNote() {
+export function AiNote({ provider, demo }: { provider: string | null; demo: boolean }) {
+  if (!hasAiNote(provider, demo)) return null;
+  const label = provider ? PROVIDER_LABELS[provider] : undefined;
   return (
-    <p id={DEMO_NOTE_ID} className="text-[11px] leading-snug text-muted-2">
-      Demo AI uses a shared key with a monthly cap. If it runs out, the standard generator still works.
+    <p id={NOTE_ID} className="text-[11px] leading-snug text-muted-2">
+      {label && <>Powered by {label}. </>}
+      {demo && "Demo AI uses a shared key with a monthly cap. If it runs out, the standard generator still works."}
     </p>
   );
 }
@@ -44,7 +60,7 @@ export function AiPausedNote({ demo }: { demo: boolean }) {
  * "Enhance with AI" switch. On: the model proposes all 8 color roles for the
  * theme. Off: roles come from the built-in keyword dictionary.
  */
-export default function AiToggle({ checked, onChange, demo = false, paused = false }: AiToggleProps) {
+export default function AiToggle({ checked, onChange, hasNote = false, paused = false }: AiToggleProps) {
   const [tipOpen, setTipOpen] = useState(false);
 
   return (
@@ -58,7 +74,7 @@ export default function AiToggle({ checked, onChange, demo = false, paused = fal
         checked={checked}
         onChange={onChange}
         disabled={paused}
-        describedBy={paused ? PAUSED_NOTE_ID : demo ? DEMO_NOTE_ID : undefined}
+        describedBy={paused ? PAUSED_NOTE_ID : hasNote ? NOTE_ID : undefined}
       />
 
       <IconButton

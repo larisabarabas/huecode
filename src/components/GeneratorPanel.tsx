@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type DragEvent } from "react";
 import { ChevronDown, ChevronLeft, RotateCcw, Sparkles, X } from "lucide-react";
 import type { useGeneratorState } from "../hooks/useGeneratorState";
 import type { Palette, PaletteSource } from "../lib/types";
-import AiToggle, { AiDemoNote, AiPausedNote } from "./AiToggle";
+import AiToggle, { AiNote, AiPausedNote, hasAiNote } from "./AiToggle";
 import PaletteRows from "./PaletteRows";
 import SwatchStrip from "./SwatchStrip";
 import Button from "./ui/Button";
@@ -160,7 +160,7 @@ export default function GeneratorPanel({
                       <AiToggle
                         checked={gen.useAi}
                         onChange={gen.setUseAi}
-                        demo={gen.aiConfig?.demo}
+                        hasNote={hasAiNote(gen.aiConfig?.provider ?? null, Boolean(gen.aiConfig?.demo))}
                         paused={gen.aiPaused}
                       />
                       <span className="ml-auto font-mono text-[10.5px] text-muted">8 roles · 11 steps</span>
@@ -168,7 +168,7 @@ export default function GeneratorPanel({
                     {gen.aiPaused ? (
                       <AiPausedNote demo={Boolean(gen.aiConfig?.demo)} />
                     ) : (
-                      gen.aiConfig?.demo && <AiDemoNote />
+                      <AiNote provider={gen.aiConfig?.provider ?? null} demo={Boolean(gen.aiConfig?.demo)} />
                     )}
                   </div>
                 )}
