@@ -80,6 +80,13 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
 
   function setUseAi(next: boolean) {
     if (next && aiPaused) return;
+    // Opting out of AI while a request is running cancels it. Clearing the ref is what makes the
+    // late response a no-op: both the success and error paths bail when their controller was replaced.
+    if (!next && aiAbortRef.current) {
+      aiAbortRef.current.abort();
+      aiAbortRef.current = null;
+      setIsProcessing(false);
+    }
     setUseAiState(next);
     if (next) setAiNotice(null);
   }
