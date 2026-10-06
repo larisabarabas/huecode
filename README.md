@@ -61,6 +61,10 @@ Each AI request is capped at 700 output tokens, which is plenty for eight HSL co
 
 The hosted demo runs on the maintainer's key, which lives in the host's environment settings and not in this repository. That key has a monthly spend cap, and the demo tells you so next to the AI toggle. If the cap is reached, AI pauses and the standard generator keeps working. The server remembers the pause in memory for 30 minutes, so on serverless hosts it is best-effort: the first request on each instance may still fail before the toggle shows as paused. For unlimited use, self-host with your own key. Set `AI_DEMO_MODE=true` only if you run a public instance on a capped shared key and want the same notice.
 
+## Branding
+
+The header logo link and the footer credit are set at build time, so forks aren't tied to the original maintainer's links. `VITE_HOME_URL` sets where the logo links and defaults to `/`. `VITE_CREDIT_NAME` and `VITE_CREDIT_URL` set the "Built by" footer, which stays hidden unless a name is set. Set them before `npm run build` (see `.env.example`). The hosted demo sets all three in its host's environment settings.
+
 ## Fonts
 
 The interface loads Instrument Sans and JetBrains Mono, both open-licensed, from Google Fonts at runtime. That means Google receives a request when the page loads.
