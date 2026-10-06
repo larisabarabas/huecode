@@ -9,7 +9,7 @@ import UndoToast from "./components/UndoToast";
 import { useShellLayout, isWideViewport, WIDE_QUERY } from "./hooks/useShellLayout";
 import { DEFAULT_THEME, useGeneratorState } from "./hooks/useGeneratorState";
 import type { ExportFormatId } from "./lib/exportFormats";
-import { CREDIT_NAME, CREDIT_URL } from "./lib/siteConfig";
+import { REPO_URL } from "./lib/siteConfig";
 import { paletteFromThemeText } from "./lib/textToPalette";
 import { loadStoredPalette, saveStoredPalette } from "./lib/paletteStorage";
 import type { PreviewMode } from "./lib/previewTheme";
@@ -141,23 +141,16 @@ export default function App() {
         </div>
       </div>
 
-      {CREDIT_NAME && (
+      {REPO_URL && (
         <div className="flex flex-none items-center px-2.5 py-2.5 text-[11.5px] font-medium text-muted lg:px-1">
-          <p className="ml-auto">
-            Built by{" "}
-            {CREDIT_URL ? (
-              <a
-                href={CREDIT_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-ink hover:underline"
-              >
-                {CREDIT_NAME}
-              </a>
-            ) : (
-              CREDIT_NAME
-            )}
-          </p>
+          <a
+            href={REPO_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="ml-auto hover:text-ink hover:underline"
+          >
+            Open source on GitHub
+          </a>
         </div>
       )}
 

@@ -63,7 +63,7 @@ The hosted demo runs on the maintainer's key, which lives in the host's environm
 
 ## Branding
 
-The header logo link and the footer credit are set at build time, so forks aren't tied to the original maintainer's links. `VITE_HOME_URL` sets where the logo links and defaults to `/`. `VITE_CREDIT_NAME` and `VITE_CREDIT_URL` set the "Built by" footer, which stays hidden unless a name is set. Set them before `npm run build` (see `.env.example`). The hosted demo sets all three in its host's environment settings.
+The header logo link and the footer link are set at build time, so forks aren't tied to the original maintainer's links. `VITE_HOME_URL` sets where the logo links and defaults to `/`. `VITE_REPO_URL` sets the footer's "Open source on GitHub" link and defaults to the upstream repository. Point it at your fork, or set it to an empty string to hide the footer. Set them before `npm run build` (see `.env.example`).
 
 ## Fonts
 

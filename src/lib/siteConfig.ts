@@ -7,6 +7,8 @@ const env = import.meta.env;
 /** Where the header logo links. Defaults to the app itself. */
 export const HOME_URL: string = env.VITE_HOME_URL?.trim() || "/";
 
-/** Footer credit ("Built by <name>"). Hidden unless a name is set. */
-export const CREDIT_NAME: string = env.VITE_CREDIT_NAME?.trim() || "";
-export const CREDIT_URL: string = env.VITE_CREDIT_URL?.trim() || "";
+/**
+ * Footer "Open source on GitHub" link. Defaults to the upstream project; point it at
+ * your fork, or set VITE_REPO_URL to an empty string to hide the footer.
+ */
+export const REPO_URL: string = (env.VITE_REPO_URL ?? "https://github.com/larisabarabas/huecode").trim();
