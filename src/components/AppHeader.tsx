@@ -1,6 +1,7 @@
 import type { RefObject } from "react";
 import { Code, Moon, Square, Squircle, Sun } from "lucide-react";
 import logo from "../assets/logo.png";
+import { HOME_URL } from "../lib/siteConfig";
 import { EXPORT_FORMATS, type ExportFormatId } from "../lib/exportFormats";
 import type { PreviewMode } from "../lib/previewTheme";
 import SegmentedControl from "./ui/SegmentedControl";
@@ -47,8 +48,14 @@ export default function AppHeader({
 
   return (
     <div className="flex flex-wrap items-center gap-3 px-1.5 pb-4">
-      <img src={logo} alt="Huecode" className="h-7 w-7 flex-none rounded-[7px]" />
-      <span className="text-[17px] font-semibold tracking-tight text-ink">Huecode</span>
+      <a
+        href={HOME_URL}
+        className="flex items-center gap-3 rounded-md"
+        aria-label="Huecode home"
+      >
+        <img src={logo} alt="" className="h-7 w-7 flex-none rounded-[7px]" />
+        <span className="text-[17px] font-semibold tracking-tight text-ink">Huecode</span>
+      </a>
       <span className="hidden text-[12.5px] font-medium text-muted lg:inline">
         Text or an image to a full TailwindCSS palette with live preview
       </span>

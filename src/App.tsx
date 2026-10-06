@@ -9,6 +9,7 @@ import UndoToast from "./components/UndoToast";
 import { useShellLayout, isWideViewport, WIDE_QUERY } from "./hooks/useShellLayout";
 import { DEFAULT_THEME, useGeneratorState } from "./hooks/useGeneratorState";
 import type { ExportFormatId } from "./lib/exportFormats";
+import { REPO_URL } from "./lib/siteConfig";
 import { paletteFromThemeText } from "./lib/textToPalette";
 import { loadStoredPalette, saveStoredPalette } from "./lib/paletteStorage";
 import type { PreviewMode } from "./lib/previewTheme";
@@ -140,18 +141,18 @@ export default function App() {
         </div>
       </div>
 
-      <div className="flex flex-none items-center px-2.5 py-2.5 text-[11.5px] font-medium text-muted lg:px-1">
-        <p className="ml-auto">
-          Built by{" "}
+      {REPO_URL && (
+        <div className="flex flex-none items-center px-2.5 py-2.5 text-[11.5px] font-medium text-muted lg:px-1">
           <a
-            href="https://www.stefaniabarabas.com/"
+            href={REPO_URL}
             target="_blank"
-            className="hover:text-ink hover:underline"
+            rel="noreferrer"
+            className="ml-auto hover:text-ink hover:underline"
           >
-            Stefania Barabas
+            Open source on GitHub
           </a>
-        </p>
-      </div>
+        </div>
+      )}
 
       <ResetConfirmModal
         open={gen.resetConfirmOpen}
