@@ -73,9 +73,38 @@ The interface loads Instrument Sans and JetBrains Mono, both open-licensed, from
 
 A snapshot of what's planned. Priorities can change, and an issue is the place to discuss anything here.
 
+The direction: Huecode turns a vibe or a brand color into an accessible theme that drops into your shadcn or Tailwind project. A feature earns a place here if it shortens the path from a palette to a running codebase.
+
+**Now**
+
+- Undo and redo for every change, and a Generate that no longer overwrites the palette with no way back
 - A loading state for AI generation, so the palette doesn't look frozen while waiting
-- More accurate color extraction from images
+- shadcn/ui theme export, with an oklch option
 - Showing the raw colors the AI proposed, before the shade scales are built
+
+**Next**
+
+- Start from your own brand color
+- One Export sheet with a "Copy as agent prompt" option, so a palette can be pasted into Claude Code, Claude Design or an AI app builder like Lovable with instructions for applying it
+- Design-tokens JSON export, for importing into Figma
+- Editing the base colors, swapping which color has which role, and a contrast check that keeps edits accessible
+- A shareable link that recreates a palette
+- A contrast report for the semantic color pairs
+
+**Later**
+
+These wait until there's evidence they're needed.
+
+- Steering AI palettes (warmer, bolder, calmer) and a set of test prompts to measure how close results are to what people expect
+- More accurate color extraction from images, starting with tuning the in-browser extraction before adding a separate service
+- Typography: font tokens in the exports, then a few curated font pairings
+- Previewing a palette on your own HTML or Tailwind markup in a sandboxed frame, or with a bookmarklet
+- A shadcn registry endpoint, a command-line tool and an MCP server
+- Importing an existing theme from `globals.css` or a Tailwind config
+
+**Not planned**
+
+A Figma plugin, accounts and saved palettes, proxying real websites for preview, per-shade editing, and a public palette gallery.
 
 ## Contributing
 
