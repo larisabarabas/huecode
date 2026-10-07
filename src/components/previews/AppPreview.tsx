@@ -1,6 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { Activity, BarChart3, Bell, CircleHelp, Download, Home, LayoutGrid, Plus, Search, Settings, User } from "lucide-react";
-import { useWideViewport } from "../../hooks/useShellLayout";
+import { PREVIEW_WIDE_MIN, useContainerWide } from "../../hooks/useContainerWide";
 
 const NAV_WORKSPACE = [
   { label: "Overview", icon: Home, active: true, badge: null },
@@ -58,12 +58,16 @@ const cardStyle: CSSProperties = {
 };
 
 export default function AppPreview() {
-  const wide = useWideViewport();
+  const [rootRef, wide] = useContainerWide(PREVIEW_WIDE_MIN);
+  // Explicit 4-up or 2x2 (never auto-fit's 3+1 orphan); 560px is where four cells stay >= 140px.
+  const [statsRef, statsFour] = useContainerWide(560);
+  const statCols = statsFour ? 4 : 2;
   const [autoRetry, setAutoRetry] = useState(true);
   const [weeklyDigest, setWeeklyDigest] = useState(false);
 
   return (
     <div
+      ref={rootRef}
       style={{
         display: "flex",
         flexDirection: wide ? "row" : "column",
@@ -351,9 +355,10 @@ export default function AppPreview() {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14, padding: "18px 20px 28px" }}>
           <div
+            ref={statsRef}
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))",
+              gridTemplateColumns: `repeat(${statCols},1fr)`,
               border: "1px solid var(--border)",
               borderRadius: "var(--r-lg)",
               background: "var(--surface)",
@@ -368,7 +373,8 @@ export default function AppPreview() {
                   flexDirection: "column",
                   gap: 9,
                   padding: "15px 16px",
-                  borderRight: i < STATS.length - 1 ? "1px solid var(--border)" : undefined,
+                  borderRight: (i + 1) % statCols !== 0 ? "1px solid var(--border)" : undefined,
+                  borderBottom: i < STATS.length - statCols ? "1px solid var(--border)" : undefined,
                 }}
               >
                 <span style={label9}>{s.label}</span>

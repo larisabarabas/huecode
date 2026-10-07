@@ -15,6 +15,10 @@ export interface ShellLayout {
   showStrip: boolean;
 }
 
+/** Below this the generator defaults to the 60px rail: at 1024–1279px (iPad landscape) the
+ * 404px panel would leave the preview only ~550px, too narrow for its wide layouts. */
+export const PANEL_OPEN_QUERY = "(min-width: 1280px)";
+
 /** The same 1024px breakpoint the whole shell reacts to, for any component (e.g. the App/
  * Marketing preview mocks) that needs to hide/reflow content on its own rather than through
  * a prop passed down from App.tsx. */
@@ -50,7 +54,7 @@ export function useShellLayout(panelOpen: boolean): ShellLayout {
 }
 
 /** Exposed separately so App.tsx can seed its initial `panelOpen` state without a second
- * matchMedia listener — mirrors the "open on desktop, collapsed on mobile" default. */
-export function isWideViewport(): boolean {
-  return window.matchMedia(WIDE_QUERY).matches;
+ * matchMedia listener — mirrors the "open on large desktop, collapsed on tablet and mobile" default. */
+export function isPanelOpenByDefault(): boolean {
+  return window.matchMedia(PANEL_OPEN_QUERY).matches;
 }

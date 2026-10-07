@@ -56,7 +56,7 @@ export default function AppHeader({
         <img src={logo} alt="" className="h-7 w-7 flex-none rounded-[7px]" />
         <span className="text-[17px] font-semibold tracking-tight text-ink">Huecode</span>
       </a>
-      <span className="hidden text-[12.5px] font-medium text-muted lg:inline">
+      <span className="hidden text-[12.5px] font-medium text-muted xl:inline">
         Text or an image to a full TailwindCSS palette with live preview
       </span>
 
@@ -70,14 +70,14 @@ export default function AppHeader({
         className="order-3 w-full lg:order-none lg:w-auto lg:ml-auto"
       />
 
-      <div className="order-4 flex flex-1 items-center gap-2 lg:order-none lg:flex-none">
+      <div className="order-4 flex flex-1 items-center gap-2 min-[700px]:order-2 min-[700px]:ml-auto min-[700px]:flex-none lg:order-none lg:ml-0">
         <button
           ref={codeButtonRef}
           type="button"
           onClick={onToggleCode}
           aria-expanded={codeOpen}
           aria-controls="code-drawer"
-          className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-control border border-line bg-white px-2.5 py-2 text-muted-3 shadow-[0_1px_2px_rgba(23,22,31,0.05)] transition-colors hover:bg-panel-inset hover:text-ink lg:flex-none"
+          className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-control border border-line bg-white px-2.5 py-2 text-muted-3 shadow-[0_1px_2px_rgba(23,22,31,0.05)] transition-colors hover:bg-panel-inset hover:text-ink min-[700px]:flex-none"
         >
           <Code size={14} aria-hidden="true" />
           <span className="font-mono text-[11px] font-medium">{fileName}</span>
