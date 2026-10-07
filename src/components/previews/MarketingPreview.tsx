@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { AlignLeft } from "lucide-react";
-import { useWideViewport } from "../../hooks/useShellLayout";
+import { PREVIEW_WIDE_MIN, useContainerWide } from "../../hooks/useContainerWide";
 
 const NAV_LINKS = ["Product", "Docs", "Pricing", "Changelog"];
 const LOGOS = ["Kestrel", "Foundry", "Ovid Labs", "Marrow", "Tessellate"];
@@ -42,10 +42,10 @@ function accentButton(large = false): CSSProperties {
 }
 
 export default function MarketingPreview() {
-  const wide = useWideViewport();
+  const [rootRef, wide] = useContainerWide(PREVIEW_WIDE_MIN);
 
   return (
-    <div>
+    <div ref={rootRef}>
       <div
         style={
           wide

@@ -6,7 +6,7 @@ import GeneratorPanel from "./components/GeneratorPanel";
 import GeneratorRail from "./components/GeneratorRail";
 import ResetConfirmModal from "./components/ResetConfirmModal";
 import UndoToast from "./components/UndoToast";
-import { useShellLayout, isWideViewport, WIDE_QUERY } from "./hooks/useShellLayout";
+import { useShellLayout, isPanelOpenByDefault, PANEL_OPEN_QUERY } from "./hooks/useShellLayout";
 import { DEFAULT_THEME, useGeneratorState } from "./hooks/useGeneratorState";
 import type { ExportFormatId } from "./lib/exportFormats";
 import { REPO_URL } from "./lib/siteConfig";
@@ -26,7 +26,7 @@ export default function App() {
   const [previewRadius, setPreviewRadius] = useState<"soft" | "sharp">("soft");
   const [format, setFormat] = useState<ExportFormatId>("tailwind-v4");
   const [codeOpen, setCodeOpen] = useState(false);
-  const [panelOpen, setPanelOpen] = useState(isWideViewport);
+  const [panelOpen, setPanelOpen] = useState(isPanelOpenByDefault);
   // Once the user manually toggles the panel, stop overriding their choice on resize.
   const panelOpenTouchedRef = useRef(false);
   // CodeDrawer's focus-trap effect keys off this by reference — it must stay stable across
@@ -38,10 +38,10 @@ export default function App() {
 
   const { wide, showRail, showPanel, showStrip } = useShellLayout(panelOpen);
 
-  // Keep the default (open on desktop, collapsed on mobile) in sync with the viewport,
-  // matching the `lg:` breakpoint every other layout decision already reacts to live.
+  // Keep the default (open on large desktop, collapsed on tablet and mobile) in sync with
+  // the viewport.
   useEffect(() => {
-    const query = window.matchMedia(WIDE_QUERY);
+    const query = window.matchMedia(PANEL_OPEN_QUERY);
     function handleChange(e: MediaQueryListEvent) {
       if (!panelOpenTouchedRef.current) setPanelOpen(e.matches);
     }
@@ -123,7 +123,7 @@ export default function App() {
           </div>
         )}
 
-        <div className="relative order-2 h-[min(72dvh,620px)] flex-none overflow-hidden rounded-card bg-white shadow-card lg:h-auto lg:min-h-105 lg:flex-1">
+        <div className="relative order-2 h-[min(72dvh,620px)] flex-none overflow-hidden rounded-card bg-white shadow-card min-[700px]:h-[max(620px,66dvh)] lg:h-auto lg:min-h-105 lg:flex-1">
           <PreviewPane
             palette={palette}
             mode={previewMode}
