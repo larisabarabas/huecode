@@ -1,0 +1,7 @@
+fastapi>=0.115
+uvicorn[standard]>=0.32
+python-multipart>=0.0.12
+numpy>=1.26
+scikit-image>=0.24
+scikit-learn>=1.5
+Pillow>=10.4

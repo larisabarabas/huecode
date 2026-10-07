@@ -10,6 +10,35 @@ export class ImagePaletteError extends Error {
   }
 }
 
+/** Which color-extraction backend to run an image through. */
+export type ExtractionEngine = "vibrant" | "python";
+
+/**
+ * Local dev-only companion service (python-service/, see its README) that
+ * clusters in CIELAB instead of RGB/HSL for more perceptually accurate
+ * swatches. Not deployed anywhere — only reachable when someone has it
+ * running locally via `uvicorn main:app --port 8788`.
+ */
+const PYTHON_SERVICE_URL = import.meta.env.VITE_PYTHON_COLOR_SERVICE_URL ?? "http://localhost:8788";
+
+/** How long we wait for the health check before assuming the service is down. */
+const PYTHON_SERVICE_PING_TIMEOUT_MS = 1500;
+
+export async function checkPythonServiceAvailability(): Promise<boolean> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), PYTHON_SERVICE_PING_TIMEOUT_MS);
+    try {
+      const res = await fetch(`${PYTHON_SERVICE_URL}/health`, { signal: controller.signal });
+      return res.ok;
+    } finally {
+      clearTimeout(timeout);
+    }
+  } catch {
+    return false;
+  }
+}
+
 /** Longest edge (px) we downscale to before color extraction. */
 const EXTRACT_MAX_DIM = 240;
 
@@ -65,15 +94,12 @@ const ROLE_PRIORITY: Record<Role, SwatchName[]> = {
 
 const FALLBACK_PRIMARY: HSL = { h: 220, s: 45, l: 50 };
 
-export async function extractPaletteColors(imageUrl: string): Promise<Record<Role, HSL>> {
-  const vibrantPalette = await Vibrant.from(imageUrl).maxDimension(200).getPalette();
-
-  const available = new Map<SwatchName, string>();
-  for (const name of SWATCH_NAMES) {
-    const swatch = vibrantPalette[name];
-    if (swatch) available.set(name, swatch.hex);
-  }
-
+/**
+ * Maps a set of named swatches (whichever extractor produced them) onto the
+ * four palette roles, and derives any role a sparse image didn't yield via
+ * color-theory rotation rather than falling back to an unrelated color.
+ */
+function rolesFromSwatches(available: Map<SwatchName, string>): Record<Role, HSL> {
   const used = new Set<SwatchName>();
   const roles = {} as Record<Role, HSL>;
 
@@ -85,9 +111,6 @@ export async function extractPaletteColors(imageUrl: string): Promise<Record<Rol
     }
   }
 
-  // Very sparse image (e.g. a flat logo/icon) may not yield 4 distinct
-  // swatches. Derive any missing role from whatever we did find via
-  // color-theory rotation, rather than falling back to an unrelated color.
   const anchor = roles.primary ?? (available.size > 0 ? hexToHsl([...available.values()][0]) : FALLBACK_PRIMARY);
   roles.primary ??= anchor;
   roles.secondary ??= { h: mixHue(anchor.h, anchor.h - 30, 1), s: anchor.s * 0.85, l: anchor.l };
@@ -97,7 +120,61 @@ export async function extractPaletteColors(imageUrl: string): Promise<Record<Rol
   return roles;
 }
 
-export async function paletteFromImage(file: File): Promise<Palette> {
+export async function extractPaletteColors(imageUrl: string): Promise<Record<Role, HSL>> {
+  const vibrantPalette = await Vibrant.from(imageUrl).maxDimension(200).getPalette();
+
+  const available = new Map<SwatchName, string>();
+  for (const name of SWATCH_NAMES) {
+    const swatch = vibrantPalette[name];
+    if (swatch) available.set(name, swatch.hex);
+  }
+
+  return rolesFromSwatches(available);
+}
+
+interface PythonExtractResponse {
+  swatches: Partial<Record<SwatchName, { hex: string; population: number } | null>>;
+}
+
+/**
+ * Sends the original file (no client-side downscale — the service does its
+ * own) to the local python-service `/extract` endpoint and maps its named
+ * swatches onto roles the same way the Vibrant path does.
+ */
+async function extractPaletteColorsViaPythonService(file: File): Promise<Record<Role, HSL>> {
+  const body = new FormData();
+  body.append("file", file);
+
+  let res: Response;
+  try {
+    res = await fetch(`${PYTHON_SERVICE_URL}/extract`, { method: "POST", body });
+  } catch {
+    throw new ImagePaletteError(
+      `Couldn't reach the Python color service at ${PYTHON_SERVICE_URL}. Is it running (uvicorn main:app --port 8788)?`,
+    );
+  }
+
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => null);
+    throw new ImagePaletteError(errBody?.detail ?? `Python color service request failed (${res.status}).`);
+  }
+
+  const data = (await res.json()) as PythonExtractResponse;
+  const available = new Map<SwatchName, string>();
+  for (const name of SWATCH_NAMES) {
+    const swatch = data.swatches[name];
+    if (swatch) available.set(name, swatch.hex);
+  }
+
+  return rolesFromSwatches(available);
+}
+
+export async function paletteFromImage(file: File, engine: ExtractionEngine = "vibrant"): Promise<Palette> {
+  if (engine === "python") {
+    const roles = await extractPaletteColorsViaPythonService(file);
+    return buildPaletteFromRoles(roles);
+  }
+
   const { src, cleanup } = await prepareImageSource(file);
   try {
     const roles = await extractPaletteColors(src);
