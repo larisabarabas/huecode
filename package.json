@@ -25,11 +25,11 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.128.0",
+    "@anthropic-ai/sdk": "^0.131.0",
     "@vercel/analytics": "^2.0.1",
     "dotenv": "^16.4.7",
     "express": "^4.22.3",
-    "lucide-react": "^1.48.0",
+    "lucide-react": "^1.51.0",
     "node-vibrant": "^4.0.4",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
@@ -48,6 +48,6 @@
     "tsx": "^4.23.15",
     "typescript": "^5.7.3",
     "vite": "^6.1.0",
-    "vitest": "^5.0.2"
+    "vitest": "^5.0.3"
   }
 }
