@@ -1,0 +1,18 @@
+# Huecode
+
+> Huecode is a free, open-source color palette generator. It turns a text description or an image into an accessible Tailwind CSS palette, with WCAG contrast checks, a live UI preview and code export.
+
+## What it does
+
+- Generates a palette from a text prompt (mood, brand, theme) or an uploaded image
+- Builds full Tailwind-style shade scales (50–950) for each color
+- Derives semantic colors (success, warning, error, info)
+- Checks text/background pairs against WCAG AA and AAA contrast
+- Previews the palette on real UI components, in light and dark
+- Exports Tailwind config / CSS code
+
+## Links
+
+- [Live demo app](https://huecode-app.stefaniabarabas.com/): try the generator
+- [Landing page](https://huecode.stefaniabarabas.com/): overview and product direction
+- [Source code](https://github.com/larisabarabas/huecode): open source on GitHub
