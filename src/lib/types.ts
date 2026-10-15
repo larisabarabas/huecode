@@ -29,4 +29,6 @@ export interface PaletteSource {
   note?: string;
   /** Raw base colors the AI proposed, before shade-ramp expansion. Only set for AI-generated palettes. */
   proposedColors?: Record<ColorRole, HSL>;
+  /** Small data-URL thumbnail of the source image, so the image input can be restored after a reload. Image kind only. */
+  thumbnail?: string;
 }

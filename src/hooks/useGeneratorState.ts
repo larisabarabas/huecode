@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { makeThumbnail } from "../lib/imageThumbnail";
 import { paletteFromThemeText } from "../lib/textToPalette";
 import { ImagePaletteError, paletteFromImage } from "../lib/imageToPalette";
 import { AI_PAUSE_MS, AiPaletteError, fetchAiConfig, paletteFromThemeTextAI, type AiConfig } from "../lib/aiPalette";
+import { loadStoredUseAi, saveStoredUseAi } from "../lib/paletteStorage";
 import type { Palette, PaletteSource } from "../lib/types";
 
 export const DEFAULT_THEME = "sage botanical minimal";
@@ -28,19 +30,32 @@ interface UseGeneratorStateArgs {
 }
 
 export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs) {
-  const [inputMode, setInputMode] = useState<"text" | "image">("text");
-  const [text, setText] = useState("");
+  // Restore the inputs that produced the palette we reloaded with. The default theme is shown
+  // as the placeholder state, so it isn't pre-filled into the field.
+  const initial = current.source;
+  const [inputMode, setInputMode] = useState<"text" | "image">(
+    initial.kind === "image" && initial.thumbnail ? "image" : "text",
+  );
+  const [text, setText] = useState(
+    initial.kind === "text" && initial.label !== DEFAULT_THEME ? initial.label : "",
+  );
   const [variationIndex, setVariationIndex] = useState(0);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    initial.kind === "image" ? (initial.thumbnail ?? null) : null,
+  );
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [aiConfig, setAiConfig] = useState<AiConfig | null>(null);
-  const [useAi, setUseAiState] = useState(false);
+  const [useAi, setUseAiState] = useState(loadStoredUseAi);
   /** Neutral (non-error) message, e.g. the demo budget ran out and AI was switched off. */
   const [aiNotice, setAiNotice] = useState<string | null>(null);
   /** Set when a request this session hit "out of budget", so the toggle stays paused even before /api/config catches up. */
   const [budgetHit, setBudgetHit] = useState(false);
   const imageFileRef = useRef<File | null>(null);
+  /** True once a real file is staged this session; a restored thumbnail alone can't be regenerated from. */
+  const [hasImageFile, setHasImageFile] = useState(false);
+  /** Bumped whenever the staged image changes or is cleared, so a stale async generate can bail. */
+  const imageRequestRef = useRef(0);
   const aiAbortRef = useRef<AbortController | null>(null);
 
   const currentRef = useRef(current);
@@ -61,6 +76,15 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
       undoTimerRef.current = null;
     }
   }
+
+  useEffect(() => {
+    saveStoredUseAi(useAi);
+  }, [useAi]);
+
+  // A restored "on" toggle is meaningless once the server says AI isn't offered or is paused.
+  useEffect(() => {
+    if (aiConfig && (!aiConfig.available || aiConfig.paused)) setUseAiState(false);
+  }, [aiConfig]);
 
   useEffect(() => {
     fetchAiConfig().then(setAiConfig);
@@ -165,7 +189,9 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     }
     setError(null);
     if (imagePreview) URL.revokeObjectURL(imagePreview);
+    imageRequestRef.current++;
     imageFileRef.current = file;
+    setHasImageFile(true);
     setImagePreview(URL.createObjectURL(file));
   }
 
@@ -173,27 +199,32 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
   function clearImage() {
     if (imagePreview) URL.revokeObjectURL(imagePreview);
     setImagePreview(null);
+    imageRequestRef.current++;
     imageFileRef.current = null;
+    setHasImageFile(false);
     setError(null);
   }
 
   async function generateFromImage() {
     const file = imageFileRef.current;
-    if (!file) return;
+    if (!file) return; // Only a restored thumbnail is showing; Generate is disabled in that state.
+    const requestId = ++imageRequestRef.current;
     setError(null);
     setIsProcessing(true);
     try {
-      const palette = await paletteFromImage(file);
+      const [palette, thumbnail] = await Promise.all([paletteFromImage(file), makeThumbnail(file)]);
+      if (imageRequestRef.current !== requestId) return; // image changed, cleared or reset mid-flight
       setVariationIndex(0);
-      emit(palette, { kind: "image", label: file.name });
+      emit(palette, { kind: "image", label: file.name, ...(thumbnail && { thumbnail }) });
     } catch (err) {
+      if (imageRequestRef.current !== requestId) return;
       setError(
         err instanceof ImagePaletteError
           ? err.message
           : "Couldn't read colors from that image. Try a different file.",
       );
     } finally {
-      setIsProcessing(false);
+      if (imageRequestRef.current === requestId) setIsProcessing(false);
     }
   }
 
@@ -231,7 +262,9 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     setIsProcessing(false);
     if (imagePreview) URL.revokeObjectURL(imagePreview);
     setImagePreview(null);
+    imageRequestRef.current++;
     imageFileRef.current = null;
+    setHasImageFile(false);
     setText("");
     setVariationIndex(0);
     setError(null);
@@ -263,6 +296,10 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     if (!snap) return;
     onGenerate(snap.palette, snap.source);
     setText(snap.text);
+    if (snap.source.kind === "image" && snap.source.thumbnail) {
+      setInputMode("image");
+      setImagePreview(snap.source.thumbnail);
+    }
     setVariationIndex(0);
     setUndoSnapshot(null);
     stopUndoTimer();
@@ -308,6 +345,7 @@ export function useGeneratorState({ onGenerate, current }: UseGeneratorStateArgs
     aiAvailable: aiConfig?.available ?? false,
     aiConfig,
     imagePreview,
+    hasImageFile,
     isProcessing,
     error,
     selectImage,

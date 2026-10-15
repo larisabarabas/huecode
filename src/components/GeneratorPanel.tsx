@@ -71,7 +71,7 @@ export default function GeneratorPanel({
     if (file) gen.selectImage(file);
   }
 
-  const canGenerate = gen.inputMode === "text" ? gen.text.trim().length > 0 : Boolean(gen.imagePreview);
+  const canGenerate = gen.inputMode === "text" ? gen.text.trim().length > 0 : gen.hasImageFile;
 
   return (
     <div className="flex h-full w-full flex-col overflow-y-auto">
