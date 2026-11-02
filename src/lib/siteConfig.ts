@@ -12,3 +12,9 @@ export const HOME_URL: string = env.VITE_HOME_URL?.trim() || "/";
  * your fork, or set VITE_REPO_URL to an empty string to hide the footer.
  */
 export const REPO_URL: string = (env.VITE_REPO_URL ?? "https://github.com/larisabarabas/huecode").trim();
+
+/**
+ * "Buy me a coffee" support link (footer and code drawer). Defaults to the upstream
+ * maintainer; set VITE_SUPPORT_URL to your own page, or to an empty string to hide it.
+ */
+export const SUPPORT_URL: string = (env.VITE_SUPPORT_URL ?? "https://buymeacoffee.com/stefsdevnotes").trim();

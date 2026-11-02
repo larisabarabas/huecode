@@ -1,5 +1,7 @@
 # Huecode
 
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-support-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/stefsdevnotes)
+
 Turn a few words or an image into an accessible Tailwind color palette. See it on real interface mockups in light and dark, then copy the code.
 
 ![Huecode showing a generated palette applied to an app mockup, in light mode](docs/screenshots/app-light.jpg)
@@ -63,7 +65,7 @@ The hosted demo runs on the maintainer's key, which lives in the host's environm
 
 ## Branding
 
-The header logo link and the footer link are set at build time, so forks aren't tied to the original maintainer's links. `VITE_HOME_URL` sets where the logo links and defaults to `/`. `VITE_REPO_URL` sets the footer's "Open source on GitHub" link and defaults to the upstream repository. Point it at your fork, or set it to an empty string to hide the footer. Set them before `npm run build` (see `.env.example`).
+The header logo link and the footer link are set at build time, so forks aren't tied to the original maintainer's links. `VITE_HOME_URL` sets where the logo links and defaults to `/`. `VITE_REPO_URL` sets the footer's "Open source on GitHub" link and defaults to the upstream repository. Point it at your fork, or set it to an empty string to hide the footer. `VITE_SUPPORT_URL` sets the "Buy me a coffee" link in the footer and code drawer. It defaults to the upstream maintainer's page, so point it at your own or set it to an empty string to hide it. Set them before `npm run build` (see `.env.example`).
 
 ## Fonts
 
@@ -109,6 +111,11 @@ A Figma plugin, accounts and saved palettes, proxying real websites for preview,
 ## Contributing
 
 Contributions are welcome, and Huecode works issue-first: open an issue before you write code, for everything. See [CONTRIBUTING.md](CONTRIBUTING.md) for the scope, setup and PR checklist. To report a security problem privately, see [SECURITY.md](SECURITY.md).
+
+## Support
+
+Huecode is free and open source. If it saved you time, you can [buy me a coffee](https://buymeacoffee.com/stefsdevnotes). Starring the repo and sharing it helps too.
+
 ## License
 
 [MIT](LICENSE) © 2026 Stefania Barabas

@@ -4,6 +4,8 @@ import { useCopyToClipboard } from "../hooks/useCopyToClipboard";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { downloadTextFile } from "../lib/download";
 import { EXPORT_FORMATS, type ExportFormatId } from "../lib/exportFormats";
+import { SUPPORT_URL } from "../lib/siteConfig";
+import SupportLink from "./SupportLink";
 import type { Palette } from "../lib/types";
 
 const HEX_RE = /#([0-9a-f]{6})/i;
@@ -91,7 +93,7 @@ export default function CodeDrawer({ open, format, palette, onClose, triggerRef 
         })}
       </div>
 
-      <div className="flex flex-none items-center gap-2 border-t border-white/[0.08] px-3.5 py-3">
+      <div className="flex flex-none flex-wrap items-center gap-2 border-t border-white/[0.08] px-3.5 py-3">
         <span className="text-[11px] text-[#6e6a8a]">
           Paste into <span className="font-mono text-[10.5px] text-[#b6b2c9]">{active.filename}</span>
         </span>
@@ -115,6 +117,14 @@ export default function CodeDrawer({ open, format, palette, onClose, triggerRef 
           <Download size={13} aria-hidden="true" />
           Download
         </button>
+        {/* Permanent, not tied to copy state: appearing after a click would shift the action
+            row under the cursor and compete with the "Copied" confirmation. Last in focus
+            order, outside the aria-live button. */}
+        {SUPPORT_URL && (
+          <p className="mt-2.5 basis-full border-t border-white/[0.06] pt-3.5 text-[11px] text-[#b6b2c9]">
+            Saved you some time? <SupportLink className="ml-1.5 hover:text-white" />
+          </p>
+        )}
       </div>
     </div>
   );

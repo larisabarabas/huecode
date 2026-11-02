@@ -9,7 +9,8 @@ import UndoToast from "./components/UndoToast";
 import { useShellLayout, isPanelOpenByDefault, PANEL_OPEN_QUERY } from "./hooks/useShellLayout";
 import { DEFAULT_THEME, useGeneratorState } from "./hooks/useGeneratorState";
 import type { ExportFormatId } from "./lib/exportFormats";
-import { REPO_URL } from "./lib/siteConfig";
+import SupportLink from "./components/SupportLink";
+import { REPO_URL, SUPPORT_URL } from "./lib/siteConfig";
 import { paletteFromThemeText } from "./lib/textToPalette";
 import { loadStoredPalette, saveStoredPalette } from "./lib/paletteStorage";
 import type { PreviewMode } from "./lib/previewTheme";
@@ -141,16 +142,20 @@ export default function App() {
         </div>
       </div>
 
-      {REPO_URL && (
-        <div className="flex flex-none items-center px-2.5 py-2.5 text-[11.5px] font-medium text-muted lg:px-1">
-          <a
-            href={REPO_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="ml-auto hover:text-ink hover:underline"
-          >
-            Open source on GitHub
-          </a>
+      {(REPO_URL || SUPPORT_URL) && (
+        <div className="flex flex-none flex-wrap items-center justify-end gap-x-6 gap-y-1 px-2.5 py-3 text-[11.5px] font-medium text-muted-2 lg:px-1">
+          {REPO_URL && (
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="-my-1.5 py-1.5 hover:text-ink hover:underline"
+            >
+              Open source on GitHub
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          )}
+          <SupportLink className="hover:text-ink" />
         </div>
       )}
 
